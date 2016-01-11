@@ -204,7 +204,7 @@ Animation loadAnimation(std::string path, std::vector<std::string> modelNames, s
 	}
 
 	std::clock_t overallEnd = clock();
-	std::cout << (overallEnd - overallStart) / 1000 << " seconds have passed overall" << std::endl;
+	std::cout << (overallEnd - overallStart) / CLOCKS_PER_SEC << " seconds have passed overall" << std::endl;
 
 	return animation;
 }
