@@ -110,6 +110,13 @@ void matrixExamples()
 	printf("%f %f %f\n", result.x, result.y, result.z);
 }
 
+void setBoneTransforms(GLuint shader, GLuint index, glm::mat4 transform)
+{
+	std::string uniformName("gBones[" + std::to_string(index) + "]");
+	GLuint gBones = glGetUniformLocation(shader, uniformName.c_str());
+	glUniformMatrix4fv(gBones, 1, GL_FALSE, glm::value_ptr(transform));
+}
+
 int main(int argc, char *argv[])
 {
 	//matrixExamples();
@@ -210,14 +217,14 @@ int main(int argc, char *argv[])
 	// assimp stuff
 
 	//std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
-	//std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\");
+	//std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
 	//std::string textureDirectory("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
-	//Model girlModel = loadModel(path, textureDirectory);
+	//Model bobModel = loadModel(path, textureDirectory);
 
 	// need to fix all these texture loading and stuff...
 	// TODO: figure out how to do skinning technique or w/e
 
-	std::string path("C:\\Users/Alex Hu/Documents/Model/rifle/");
+	/*std::string path("C:\\Users/Alex Hu/Documents/Model/rifle/");
 	std::string textureDirectory("C:\\Users/Alex Hu/Documents/Model/rifle/");
 	std::vector<std::string> fileNames;
 
@@ -241,7 +248,13 @@ int main(int argc, char *argv[])
 	}
 
 
-	Animation animation = loadAnimation(path, fileNames, textureDirectory);
+	Animation animation = loadAnimation(path, fileNames, textureDirectory);*/
+
+	std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
+	std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
+	//std::string path("C:\\Users/Alex Hu/Documents/Model/agent/Agent_FBX/AgentWalk.fbx");
+	//std::string texture("C:\\Users/Alex Hu/Documents/Model/agent/Character");
+	Model bobModel = loadModel(path, texture);
 
 
 
@@ -294,6 +307,7 @@ int main(int argc, char *argv[])
 	unsigned int fpsArray[] = {16, 17, 17};
 	unsigned int fpsCount = 0;
 	float fpsAverage = 0;
+	unsigned int startTime = prevTime;
 
 	unsigned int currentFrame = 0;
 	bool playAnimation = false;
@@ -420,27 +434,48 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_p))
 			{
-				if (animation.isAnimationPlaying())
+				/*if (animation.isAnimationPlaying())
 				{
 					animation.resetAnimation();
 				}
 
-				animation.toggleAnimation();
+				animation.toggleAnimation();*/
 			}
 		}
 
 		// Clear the screen to black
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (animation.currentItem())
+		/*if (animation.currentItem())
 		{
 			animation.currentItem()->draw(sampler);
 		}
 
 		animation.nextItem();
 
-		currentFrame = currentFrame % size;
+		currentFrame = currentFrame % size;*/
+
+		unsigned int runningTime = SDL_GetTicks() - startTime;
+		std::vector<glm::mat4> boneTransforms = bobModel.getBoneTransforms((float)runningTime, 0);
+
+		/*for (unsigned int i = 0; i < 100; ++i)
+		{
+			setBoneTransforms(shaderProgram, i, glm::mat4(1.0f));
+		}*/
+
+		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		{
+			if (i < 100)
+			{
+				setBoneTransforms(shaderProgram, i, boneTransforms[i]);
+			}
+		}
+		bobModel.draw(sampler);
+
+		/*glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);*/
 
 		unsigned int currTime = SDL_GetTicks();
 		unsigned int elapsed = currTime - prevTime;
@@ -468,7 +503,12 @@ int main(int argc, char *argv[])
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
 
-	//girlModel.clearGLBuffers();
+	/*glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ebo);
+	glDeleteVertexArrays(1, &vao);*/
+
+	bobModel.clearGLBuffers();
+	//animation.clearGLBuffers();
 	
 
 	SDL_GL_DeleteContext(context);
