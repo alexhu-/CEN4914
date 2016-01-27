@@ -1,14 +1,13 @@
 #include "Model.h"
 
 Model::Model(
-	NodeData* root, 
 	std::vector<AnimationEntry> entries,
 	std::map<std::string, GLuint> boneMap,
 	std::vector<BoneData> bones, 
 	std::vector<Mesh> meshes, 
 	glm::mat4 globalInverseTransform
 	) :
-	mRoot(root),
+	mRoot(new NodeData()),
 	mAnimationEntries(entries),
 	mBoneMap(boneMap),
 	mBones(bones),
@@ -18,10 +17,43 @@ Model::Model(
 	mBoneCount = mBones.size();
 }
 
+Model::Model(const Model& rhs)
+{
+	this->mRoot = new NodeData();
+	this->mAnimationEntries = rhs.mAnimationEntries;
+	this->mBoneMap = rhs.mBoneMap;
+	this->mBoneCount = rhs.mBoneCount;
+	this->mBones = rhs.mBones;
+	this->mMeshes = rhs.mMeshes;
+	this->mGlobalInverseTransform = rhs.mGlobalInverseTransform;
+
+	// now copy node tree
+	copyNodeTree(*this->mRoot, *rhs.mRoot);
+}
+
+void Model::copyNodeTree(NodeData& out, const NodeData& in)
+{
+	out.name = in.name;
+	out.transformation = in.transformation;
+	out.animations.resize(in.animations.size());
+	
+	for (unsigned int i = 0; i < out.animations.size(); ++i)
+	{
+		out.animations[i]  = in.animations[i];
+	}
+	
+	for (unsigned int i = 0; i < in.children.size(); ++i)
+	{
+		NodeData* child = new NodeData();
+		out.children.push_back(child);
+		copyNodeTree(*child, *in.children[i]);
+	}
+}
+
 Model::~Model()
 {
-	//delete mRoot;
 	clearGLBuffers();
+	delete mRoot;
 }
 
 void Model::clearGLBuffers()
@@ -30,6 +62,29 @@ void Model::clearGLBuffers()
 	{
 		mMeshes[i].clearGLBuffers();
 	}
+}
+
+Model& Model::operator=(const Model& rhs)
+{
+	if (this != &rhs)
+	{
+		NodeData* root = new NodeData();
+
+		delete this->mRoot;
+
+		this->mRoot = root;
+		this->mAnimationEntries = rhs.mAnimationEntries;
+		this->mBoneMap = rhs.mBoneMap;
+		this->mBoneCount = rhs.mBoneCount;
+		this->mBones = rhs.mBones;
+		this->mMeshes = rhs.mMeshes;
+		this->mGlobalInverseTransform = rhs.mGlobalInverseTransform;
+
+		// now copy node tree
+		copyNodeTree(*this->mRoot, *rhs.mRoot);
+	}
+
+	return *this;
 }
 
 void Model::draw(GLint sampler)
@@ -103,7 +158,7 @@ void Model::calculateFinalTransforms(float animationTime, glm::mat4 parentTransf
 		mBones[boneIndex].finalTransformation = mGlobalInverseTransform * globalTransform * mBones[boneIndex].offset;
 	}
 
-	for (unsigned int i = 0; i < node->childrenCount; ++i)
+	for (unsigned int i = 0; i < node->children.size(); ++i)
 	{
 		calculateFinalTransforms(animationTime, globalTransform, node->children[i], animationIndex);
 	}
@@ -169,4 +224,17 @@ glm::quat Model::getInterpolatedRotation(float animationTime, const glm::quat* q
 	glm::quat end(quaternions[index + 1]);
 	glm::quat result = glm::lerp(start, end, factor);
 	return glm::normalize(result);
+}
+
+NodeData* Model::getRoot()
+{
+	return mRoot;
+}
+
+void Model::setup()
+{
+	for (unsigned int i = 0; i < mMeshes.size(); ++i)
+	{
+		mMeshes[i].setup();
+	}
 }

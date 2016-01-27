@@ -215,10 +215,11 @@ int main(int argc, char *argv[])
 
 
 	// assimp stuff
-
+	
 	//std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
-	//std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
-	//std::string textureDirectory("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
+	//std::string texture("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit");
+	std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
+	std::string texture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
 	//Model bobModel = loadModel(path, textureDirectory);
 
 	// need to fix all these texture loading and stuff...
@@ -250,12 +251,12 @@ int main(int argc, char *argv[])
 
 	Animation animation = loadAnimation(path, fileNames, textureDirectory);*/
 
-	std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
-	std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
+	//std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
+	//std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
 	//std::string path("C:\\Users/Alex Hu/Documents/Model/agent/Agent_FBX/AgentWalk.fbx");
 	//std::string texture("C:\\Users/Alex Hu/Documents/Model/agent/Character");
-	Model bobModel = loadModel(path, texture);
-
+	Model bobModel = Importer::loadModel(path, texture);
+	bobModel.setup();
 
 
 // ----------------------------------------------------------------------------------------------
@@ -375,6 +376,7 @@ int main(int argc, char *argv[])
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_w))
 			{
 				angleUp -= moveUp;
+				angleUp = std::fmod(angleUp, fullCircle);
 				if (angleUp < 0.0f)
 				{
 					angleUp += fullCircle;
@@ -390,10 +392,7 @@ int main(int argc, char *argv[])
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_s))
 			{
 				angleUp += moveUp;
-				if (angleUp > fullCircle)
-				{
-					angleUp -= fullCircle;
-				}
+				angleUp = std::fmod(angleUp, fullCircle);
 				glm::vec3 newCameraLook1(0.0f, glm::sin(angleUp), glm::cos(angleUp));
 				glm::vec3 newCameraLook2(glm::sin(angleRight), 0.0f, glm::cos(angleRight));
 				cameraLook = newCameraLook1 + newCameraLook2 + cameraLocation;
@@ -405,10 +404,7 @@ int main(int argc, char *argv[])
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_a))
 			{
 				angleRight += moveUp;
-				if (angleRight > fullCircle)
-				{
-					angleRight -= fullCircle;
-				}
+				angleRight = std::fmod(angleRight, fullCircle);
 				glm::vec3 newCameraLook1(0.0f, glm::sin(angleUp), glm::cos(angleUp));
 				glm::vec3 newCameraLook2(glm::sin(angleRight), 0.0f, glm::cos(angleRight));
 				cameraLook = newCameraLook1 + newCameraLook2 + cameraLocation;
@@ -420,6 +416,7 @@ int main(int argc, char *argv[])
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_d))
 			{
 				angleRight -= moveUp;
+				angleRight = std::fmod(angleRight, fullCircle);
 				if (angleRight < 0.0f)
 				{
 					angleRight += fullCircle;
@@ -459,18 +456,18 @@ int main(int argc, char *argv[])
 		unsigned int runningTime = SDL_GetTicks() - startTime;
 		std::vector<glm::mat4> boneTransforms = bobModel.getBoneTransforms((float)runningTime, 0);
 
-		/*for (unsigned int i = 0; i < 100; ++i)
+		for (unsigned int i = 0; i < 100; ++i)
 		{
 			setBoneTransforms(shaderProgram, i, glm::mat4(1.0f));
-		}*/
+		}
 
-		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		/*for (unsigned int i = 0; i < boneTransforms.size(); ++i)
 		{
 			if (i < 100)
 			{
 				setBoneTransforms(shaderProgram, i, boneTransforms[i]);
 			}
-		}
+		}*/
 		bobModel.draw(sampler);
 
 		/*glBindVertexArray(vao);

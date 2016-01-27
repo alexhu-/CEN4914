@@ -5,7 +5,7 @@ Mesh::Mesh(std::vector<VertexData> vertices, std::vector<GLuint> indices, std::v
 	mIndices(indices),
 	mTextures(textures)
 {
-	this->setup();
+	//this->setup();
 }
 
 void Mesh::clearGLBuffers()
@@ -49,7 +49,7 @@ void Mesh::setup()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->mIndices.size() * sizeof(GLuint), &this->mIndices[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid*) 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid*)offsetof(VertexData, position));
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid*)offsetof(VertexData, normal));
@@ -58,7 +58,7 @@ void Mesh::setup()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid*)offsetof(VertexData, textureCoordinate));
 
 	glEnableVertexAttribArray(3);
-	glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexData), (GLvoid*)offsetof(VertexData, bones)); // notice the I in IPoint for integer
+	glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexData), (GLvoid*)offsetof(VertexData, boneIndices)); // notice the I in IPoint for integer
 
 	glEnableVertexAttribArray(4);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), (GLvoid*)offsetof(VertexData, weights));

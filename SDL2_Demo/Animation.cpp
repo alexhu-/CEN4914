@@ -97,7 +97,7 @@ void Animation::clearGLBuffers()
 {
 	if (!mModels.empty())
 	{
-		for (int i = 0; i < mModels.size(); ++i)
+		for (unsigned int i = 0; i < mModels.size(); ++i)
 		{
 			mModels[i].clearGLBuffers();
 		}
