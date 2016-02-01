@@ -16,6 +16,7 @@
 #include <string>
 #include "Importer.h"
 #include "Model.h"
+#include "Camera.h"
 
 void compileVertexShader(char *fileName, GLuint vertexShader)
 {
@@ -218,9 +219,10 @@ int main(int argc, char *argv[])
 	
 	//std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
 	//std::string texture("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit");
-	std::string path("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
-	std::string texture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
-	//Model bobModel = loadModel(path, textureDirectory);
+	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
+	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
+	Model girlModel = Importer::loadModel(gpath, gtexture);
+	girlModel.setup();
 
 	// need to fix all these texture loading and stuff...
 	// TODO: figure out how to do skinning technique or w/e
@@ -251,8 +253,8 @@ int main(int argc, char *argv[])
 
 	Animation animation = loadAnimation(path, fileNames, textureDirectory);*/
 
-	//std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
-	//std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
+	std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
+	std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
 	//std::string path("C:\\Users/Alex Hu/Documents/Model/agent/Agent_FBX/AgentWalk.fbx");
 	//std::string texture("C:\\Users/Alex Hu/Documents/Model/agent/Character");
 	Model bobModel = Importer::loadModel(path, texture);
@@ -262,8 +264,9 @@ int main(int argc, char *argv[])
 // ----------------------------------------------------------------------------------------------
 	// stuff for 3d stuff
 	// 3d stuff now
+
 	glm::mat4 model = glm::mat4();
-	model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
+	//model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f));
 	model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 	GLint uniModel = glGetUniformLocation(shaderProgram, "model");
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -281,11 +284,13 @@ int main(int argc, char *argv[])
 	float fullCircle = glm::radians(360.0f);
 	float moveUp = glm::radians(5.0f);
 	float ninety = glm::radians(90.0f);
-	glm::mat4 view = glm::lookAt(
+	/*glm::mat4 view = glm::lookAt(
 		cameraLocation, // camera location
 		cameraLook, // where the camera is looking at
 		cameraUp // which way is up, we define z-axis is up so xy plane is ground
-		);
+		);*/
+	Camera camera(cameraLocation, glm::vec3(0.0f, 0.0f, -1.0f), cameraUp);
+	glm::mat4 view = camera.getViewMatrix();
 	GLint uniView = glGetUniformLocation(shaderProgram, "view");
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
 
@@ -327,95 +332,113 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_LEFT))
 			{
-				cameraLocation -= goRight;
+				/*cameraLocation -= goRight;
 				cameraLook -= goRight;
-				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);\
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.translateRight(-0.25);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_RIGHT))
 			{
-				cameraLocation += goRight;
+				/*cameraLocation += goRight;
 				cameraLook += goRight;
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.translateRight(0.25);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_UP))
 			{
-				cameraLocation += goUp;
+				/*cameraLocation += goUp;
 				cameraLook += goUp;
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.translateUp(0.25);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_DOWN))
 			{
-				cameraLocation -= goUp;
+				/*cameraLocation -= goUp;
 				cameraLook -= goUp;
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.translateUp(-0.25);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_z))
 			{
-				cameraLocation += goForward;
+				/*cameraLocation += goForward;
 				cameraLook += goForward;
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.translateForward(0.25);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_x))
 			{
-				cameraLocation -= goForward;
+				/*cameraLocation -= goForward;
 				cameraLook -= goForward;
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.translateForward(-0.25);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_w))
 			{
-				angleUp -= moveUp;
+				/*angleUp -= moveUp;
 				angleUp = std::fmod(angleUp, fullCircle);
 				if (angleUp < 0.0f)
 				{
 					angleUp += fullCircle;
 				}
 				glm::vec3 newCameraLook1(0.0f, glm::sin(angleUp), glm::cos(angleUp));
-				glm::vec3 newCameraLook2(glm::sin(angleRight), 0.0f, glm::cos(angleRight));
-				cameraLook = newCameraLook1 + newCameraLook2 + cameraLocation;
+				//glm::vec3 newCameraLook2(glm::sin(angleRight), 0.0f, glm::cos(angleRight));
+				cameraLook = newCameraLook1 /*+ newCameraLook2*/ /*+ cameraLocation;
 				cameraUp = glm::vec3(0.0f, glm::sin(angleUp - ninety), glm::cos(angleUp - ninety));
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.rotateUp(6.0f);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_s))
 			{
-				angleUp += moveUp;
+				/*angleUp += moveUp;
 				angleUp = std::fmod(angleUp, fullCircle);
 				glm::vec3 newCameraLook1(0.0f, glm::sin(angleUp), glm::cos(angleUp));
 				glm::vec3 newCameraLook2(glm::sin(angleRight), 0.0f, glm::cos(angleRight));
 				cameraLook = newCameraLook1 + newCameraLook2 + cameraLocation;
 				cameraUp = glm::vec3(0.0f, glm::sin(angleUp - ninety), glm::cos(angleUp - ninety));
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.rotateUp(-6.0f);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_a))
 			{
-				angleRight += moveUp;
+				/*angleRight += moveUp;
 				angleRight = std::fmod(angleRight, fullCircle);
 				glm::vec3 newCameraLook1(0.0f, glm::sin(angleUp), glm::cos(angleUp));
 				glm::vec3 newCameraLook2(glm::sin(angleRight), 0.0f, glm::cos(angleRight));
 				cameraLook = newCameraLook1 + newCameraLook2 + cameraLocation;
 				cameraUp = glm::vec3(0.0f, glm::sin(angleUp - ninety), glm::cos(angleUp - ninety));
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.rotateRight(3.0f);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_d))
 			{
-				angleRight -= moveUp;
+				/*angleRight -= moveUp;
 				angleRight = std::fmod(angleRight, fullCircle);
 				if (angleRight < 0.0f)
 				{
@@ -426,7 +449,9 @@ int main(int argc, char *argv[])
 				cameraLook = newCameraLook1 + newCameraLook2 + cameraLocation;
 				cameraUp = glm::vec3(0.0f, glm::sin(angleUp - ninety), glm::cos(angleUp - ninety));
 				view = glm::lookAt(cameraLocation, cameraLook, cameraUp);
-				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));*/
+				camera.rotateRight(-3.0f);
+				glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_p))
@@ -456,19 +481,21 @@ int main(int argc, char *argv[])
 		unsigned int runningTime = SDL_GetTicks() - startTime;
 		std::vector<glm::mat4> boneTransforms = bobModel.getBoneTransforms((float)runningTime, 0);
 
-		for (unsigned int i = 0; i < 100; ++i)
-		{
-			setBoneTransforms(shaderProgram, i, glm::mat4(1.0f));
-		}
-
-		/*for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
 		{
 			if (i < 100)
 			{
 				setBoneTransforms(shaderProgram, i, boneTransforms[i]);
 			}
-		}*/
+		}
 		bobModel.draw(sampler);
+
+		for (unsigned int i = 0; i < 100; ++i)
+		{
+			setBoneTransforms(shaderProgram, i, glm::mat4(1.0f));
+		}
+
+		girlModel.draw(sampler);
 
 		/*glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
@@ -505,6 +532,7 @@ int main(int argc, char *argv[])
 	glDeleteVertexArrays(1, &vao);*/
 
 	bobModel.clearGLBuffers();
+	girlModel.clearGLBuffers();
 	//animation.clearGLBuffers();
 	
 
