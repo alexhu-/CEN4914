@@ -309,6 +309,13 @@ int main(int argc, char *argv[])
 	//glDepthFunc(GL_LESS);
 //--------------------------------------------------------------------------------------------------------
 
+	girlModel.scale(0.2f, 0.2f, 0.2f);
+	girlModel.translate(5.0f, 0.0f, 0.0f);
+	girlModel.rotateX(-90.0f);
+
+	bobModel.scale(0.2f, 0.2f, 0.2f);
+	bobModel.rotateX(-90.0f);
+
 	unsigned int prevTime = SDL_GetTicks();
 	unsigned int fpsArray[] = {16, 17, 17};
 	unsigned int fpsCount = 0;
@@ -488,14 +495,16 @@ int main(int argc, char *argv[])
 				setBoneTransforms(shaderProgram, i, boneTransforms[i]);
 			}
 		}
-		bobModel.draw(sampler);
+		//bobModel.draw(sampler);
+		bobModel.draw(sampler, uniModel, model);
 
 		for (unsigned int i = 0; i < 100; ++i)
 		{
 			setBoneTransforms(shaderProgram, i, glm::mat4(1.0f));
 		}
 
-		girlModel.draw(sampler);
+		//girlModel.draw(sampler);
+		girlModel.draw(sampler, uniModel, model);
 
 		/*glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

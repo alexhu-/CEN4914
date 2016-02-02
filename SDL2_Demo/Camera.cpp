@@ -1,7 +1,10 @@
 #pragma once
 
+#include <iostream>
+
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include "Camera.h"
 
@@ -19,16 +22,16 @@ Camera::~Camera()
 
 }
 
+// try absolute space instead of world space
 void Camera::rotateUp(float degrees)
 {
-	//mDirection = glm::rotateX(mDirection, glm::radians(degrees));
-	mUp = glm::rotateX(mUp, glm::radians(degrees));
+	mUp = glm::rotate(mUp, glm::radians(degrees), mRight);
 	mDirection = glm::cross(mUp, mRight);
 }
 
 void Camera::rotateRight(float degrees)
 {
-	mRight = glm::rotateY(mRight, glm::radians(degrees));
+	mRight = glm::rotate(mRight, glm::radians(degrees), mUp);
 	mDirection = glm::cross(mUp, mRight);
 }
 

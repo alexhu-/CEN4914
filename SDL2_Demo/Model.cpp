@@ -3,8 +3,8 @@
 Model::Model(
 	std::vector<AnimationEntry> entries,
 	std::map<std::string, GLuint> boneMap,
-	std::vector<BoneData> bones, 
-	std::vector<Mesh> meshes, 
+	std::vector<BoneData> bones,
+	std::vector<Mesh> meshes,
 	glm::mat4 globalInverseTransform
 	) :
 	mRoot(new NodeData()),
@@ -12,7 +12,8 @@ Model::Model(
 	mBoneMap(boneMap),
 	mBones(bones),
 	mMeshes(meshes),
-	mGlobalInverseTransform(globalInverseTransform)
+	mGlobalInverseTransform(globalInverseTransform),
+	mModelMatrix(1.0f)
 {
 	mBoneCount = mBones.size();
 }
@@ -26,6 +27,7 @@ Model::Model(const Model& rhs)
 	this->mBones = rhs.mBones;
 	this->mMeshes = rhs.mMeshes;
 	this->mGlobalInverseTransform = rhs.mGlobalInverseTransform;
+	this->mModelMatrix = rhs.mModelMatrix;
 
 	// now copy node tree
 	copyNodeTree(*this->mRoot, *rhs.mRoot);
@@ -79,6 +81,7 @@ Model& Model::operator=(const Model& rhs)
 		this->mBones = rhs.mBones;
 		this->mMeshes = rhs.mMeshes;
 		this->mGlobalInverseTransform = rhs.mGlobalInverseTransform;
+		this->mModelMatrix = rhs.mModelMatrix;
 
 		// now copy node tree
 		copyNodeTree(*this->mRoot, *rhs.mRoot);
@@ -237,4 +240,47 @@ void Model::setup()
 	{
 		mMeshes[i].setup();
 	}
+}
+
+void Model::scale(float x, float y, float z)
+{
+	mModelMatrix = glm::scale(mModelMatrix, glm::vec3(x, y, z));
+}
+
+void Model::translate(float x, float y, float z)
+{
+	mModelMatrix = glm::translate(mModelMatrix, glm::vec3(x, y, z));
+}
+
+void Model::rotateX(float degrees)
+{
+	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(degrees), glm::vec3(1.0f, 0.0f, 0.0f));
+}
+
+void Model::rotateY(float degrees)
+{
+	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(degrees), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Model::rotateZ(float degrees)
+{
+	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(degrees), glm::vec3(0.0f, 0.0f, 1.0f));
+}
+
+glm::mat4 Model::getModelMatrix()
+{
+	/*glm::mat4 result(1.0f);
+	result = glm::scale(result, mScaling);
+	result = glm::rotate(result, mTheta, glm::vec3(0.0f, 0.0f, 1.0f));
+	result = glm::rotate(result, mPhi, glm::cross(glm::vec3(glm::cos(mTheta), glm::sin(mTheta), 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+	result = glm::translate(result, mTranslation);
+	return result;*/
+	return mModelMatrix;
+}
+
+void Model::draw(GLint sampler, GLint modelUniform, glm::mat4 originalModel)
+{
+	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(this->getModelMatrix()));
+	this->draw(sampler);
+	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(originalModel));
 }

@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Mesh.h"
 #include "ModelData.h"
@@ -26,15 +27,28 @@ public:
 	~Model();
 	void clearGLBuffers();
 	void draw(GLint sampler);
+	void draw(GLint sampler, GLint modelUniform, glm::mat4 originalModel);
 	std::vector<glm::mat4> getBoneTransforms(float timeMS, unsigned int animationIndex);
 	void calculateFinalTransforms(float animationTime, glm::mat4 parentTransform, const NodeData* node, unsigned int animationIndex);
 	NodeData* getRoot();
 
 	Model& operator=(const Model& rhs);
 
+	// Call this to create the buffers for each mesh in opengl
 	void setup();
 
+	// Functions for manipulating the scale, translation, and rotation of the model
+	void scale(float x, float y, float z);
+	void translate(float x, float y, float z);
+	void rotateX(float degrees);
+	void rotateY(float degrees);
+	void rotateZ(float degrees);
+
+	// Functions to get the model matrix
+	glm::mat4 getModelMatrix();
+
 private:
+	// mesh information
 	std::vector<BoneData> mBones;
 	std::vector<Mesh> mMeshes;
 	glm::mat4 mGlobalInverseTransform;
@@ -44,6 +58,9 @@ private:
 	unsigned int mBoneCount;
 	NodeData* mRoot;
 	std::map<std::string, GLuint> mBoneMap;
+
+	// the model's model matrix - a combination of scaling, rotation, and translation
+	glm::mat4 mModelMatrix;
 
 	unsigned int findTimeIndex(float animationTime, const float* times, unsigned int timeCount);
 	glm::vec3 getInterpolatedVector(float animationTime, const glm::vec3* vectors, const float* times, unsigned int size);
