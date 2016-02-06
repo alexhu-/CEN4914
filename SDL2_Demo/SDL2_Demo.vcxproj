@@ -134,11 +134,15 @@
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="UIRectangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="tutorialFragmentShader.txt" />
     <Text Include="tutorialVertexShader.txt" />
+    <Text Include="UIFragmentShader.txt" />
+    <Text Include="UIVertexShader.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -147,6 +151,8 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelData.h" />
+    <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="UIRectangle.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -24,6 +24,4 @@ private:
 	GLuint mVAO;
 	GLuint mVBO;
 	GLuint mEBO;
-
-	
 };
