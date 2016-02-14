@@ -12,11 +12,12 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-
 #include <string>
+
+#include "Camera.h"
 #include "Importer.h"
 #include "Model.h"
-#include "Camera.h"
+#include "Scene.h"
 #include "ShaderProgram.h"
 #include "UIRectangle.h"
 
@@ -141,12 +142,12 @@ int main(int argc, char *argv[])
 
 	// assimp stuff
 	
-	/*std::string nanopath("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
+	std::string nanopath("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
 	std::string nanotexture("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit");
 	Model nanoModel = Importer::loadModel(nanopath, nanotexture);
 	nanoModel.setup();
 	nanoModel.scale(0.1f, 0.1f, 0.1f);
-	nanoModel.translate(-10.0f, 0.0f, 0.0f);*/
+	nanoModel.translate(-10.0f, 0.0f, 0.0f);
 
 	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
 	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
@@ -221,8 +222,18 @@ int main(int argc, char *argv[])
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
-	//glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LESS);
 //--------------------------------------------------------------------------------------------------------
+
+	Scene bobScene;
+	bobScene.addModel(&bobModel);
+
+	Scene girlScene;
+	girlScene.addModel(&girlModel);
+	girlScene.addModel(&nanoModel);
+
+	bool displayBobScene = true;
+	bool displayGirlScene = true;
 
 	unsigned int prevTime = SDL_GetTicks();
 	unsigned int fpsArray[] = {16, 17, 17};
@@ -311,7 +322,17 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_p))
 			{
+			
+			}
 
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_1))
+			{
+				displayBobScene = !displayBobScene;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_2))
+			{
+				displayGirlScene = !displayGirlScene;
 			}
 
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
@@ -324,32 +345,21 @@ int main(int argc, char *argv[])
 		shaderProgram.use();
 
 		unsigned int runningTime = SDL_GetTicks() - startTime;
-		std::vector<glm::mat4> boneTransforms = bobModel.getBoneTransforms((float)runningTime, 0);
-
-		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		if (displayBobScene)
 		{
-			if (i < 100)
-			{
-				setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
-			}
+			bobScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
 		}
-		bobModel.draw(sampler, uniModel, model);
-
-		// for drawing models without any bones or animations
-		for (unsigned int i = 0; i < 100; ++i)
+		if (displayGirlScene)
 		{
-			setBoneTransforms(shaderProgramId, i, glm::mat4(1.0f));
+			girlScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
 		}
-		girlModel.draw(sampler, uniModel, model);
-
-		//nanoModel.draw(sampler, uniModel, model);
 
 		shapeShaderProgram.use();
 		glUniformMatrix4fv(uniViewShape, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		glUniform4f(shapeUniColor, 1.0f, 0.0f, 0.0f, 1.0f);
+		/*glUniform4f(shapeUniColor, 1.0f, 0.0f, 0.0f, 1.0f);
 		glBindVertexArray(vao);
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
 
 		if (frameCount >= 15)
 		{
@@ -410,7 +420,7 @@ int main(int argc, char *argv[])
 
 	bobModel.clearGLBuffers();
 	girlModel.clearGLBuffers();
-	//nanoModel.clearGLBuffers();
+	nanoModel.clearGLBuffers();
 
 	SDL_GL_DeleteContext(context);
 

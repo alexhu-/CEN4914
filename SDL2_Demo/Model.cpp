@@ -104,6 +104,12 @@ std::vector<glm::mat4> Model::getBoneTransforms(float timeMS, unsigned int anima
 	std::vector<glm::mat4> boneTransforms;
 	boneTransforms.resize(mBoneCount);
 
+	if (mBoneCount == 0)
+	{
+		boneTransforms.push_back(identity);
+		return boneTransforms;
+	}
+
 	if (animationIndex >= mAnimationEntries.size())
 	{
 		for (unsigned int i = 0; i < mBoneCount; ++i)
