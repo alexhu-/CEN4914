@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <glm/glm.hpp>
 #include <glm/vec3.hpp> // glm::vec3
 #include <glm/vec4.hpp> // glm::vec4
 #include <glm/mat4x4.hpp> // glm::mat4
@@ -13,6 +14,9 @@
 #include <fstream>
 #include <chrono>
 #include <string>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <SDL_mixer.h>
 
 #include "Camera.h"
 #include "Importer.h"
@@ -23,17 +27,21 @@
 
 #include "MyAnimatedMeshClass.h"
 
-void matrixExamples()
-{
-	// create a default identity matrix
-	glm::mat4 trans;
-	// rotate multiplies identity matrix by rotation transformation 180 degrees around z-axis
-	trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 0.1f));
 
-	// test out above matrix
-	glm::vec4 result = trans * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	printf("%f %f %f\n", result.x, result.y, result.z);
-}
+/// Holds all state information relevant to a character as loaded using FreeType
+struct Character {
+	GLuint TextureID;   // ID handle of the glyph texture
+	glm::ivec2 Size;    // Size of glyph
+	glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
+	GLuint Advance;    // Horizontal offset to advance to next glyph
+};
+
+std::map<GLchar, Character> Characters;
+
+GLuint vbo;
+GLuint vao;
+
+void RenderText(ShaderProgram &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
 
 void setBoneTransforms(GLuint shader, GLuint index, glm::mat4 transform)
 {
@@ -44,26 +52,57 @@ void setBoneTransforms(GLuint shader, GLuint index, glm::mat4 transform)
 
 int main(int argc, char *argv[])
 {
-	// change colors with time
-	//auto t_start = std::chrono::high_resolution_clock::now();
+	//The music that will be played
+	Mix_Music *gMusic = NULL;
 
 	char *vertexShaderFile = "tutorialVertexShader.txt";
 	char *fragmentShaderFile = "tutorialFragmentShader.txt";
 	char *shapeVertexShaderFile = "UIVertexShader.txt";
 	char *shapeFragmentShaderFile = "UIFragmentShader.txt";
+	char *textVertexShaderFile = "textVertexShader.txt";
+	char *textFragmentShaderFile = "textFragmentShader.txt";
 
-	SDL_Init(SDL_INIT_VIDEO);
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO) < 0)
+	{
+		printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+	}
+
+	//Initialize SDL_mixer
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
+	{
+		printf("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+	}
+	//Load music
+	gMusic = Mix_LoadMUS("breakout.mp3");
+	if (gMusic == NULL)
+	{
+		printf("Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError());
+	}
+
+	SDL_Joystick* gGameController = NULL;
+	//Check for joysticks
+	if (SDL_NumJoysticks() < 1)
+	{
+		printf("Warning: No joysticks connected!\n");
+	}
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
 	SDL_Window *window = SDL_CreateWindow("OpenGL", 100, 100, 800, 600, SDL_WINDOW_OPENGL);
 
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 
+	// Initialize GLEW to setup the OpenGL Function pointers
 	glewExperimental = GL_TRUE;
 	glewInit();
+
+	for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+		if (SDL_IsGameController(i)) {
+			printf("Joystick %i is supported by the game controller interface!\n", i);
+		}
+	}
 
 	// stuff
 
@@ -103,23 +142,88 @@ int main(int argc, char *argv[])
 
 	GLint shapeUniColor = glGetUniformLocation(shapeProgramId, "inColor");
 
-	GLuint vao;
+	// Compile and setup the text shader
+	ShaderProgram textShaderProgram(textVertexShaderFile, textFragmentShaderFile);
+	textShaderProgram.compileShaderProgram();
+	GLuint textProgramId = textShaderProgram.getProgram();
+	textShaderProgram.use();
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(800), 0.0f, static_cast<GLfloat>(600));
+	glUniformMatrix4fv(glGetUniformLocation(textShaderProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+	// FreeType
+	FT_Library ft;
+	// All functions return a value different than 0 whenever an error occurred
+	if (FT_Init_FreeType(&ft))
+		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+
+	// Load font as face
+	FT_Face face;
+	if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face))
+		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+
+	// Set size to load glyphs as
+	FT_Set_Pixel_Sizes(face, 0, 48);
+
+	// Disable byte-alignment restriction
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// Load first 128 characters of ASCII set
+	for (GLubyte c = 0; c < 128; c++)
+	{
+		// Load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+		// Generate texture
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+			);
+		// Set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		// Now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			face->glyph->advance.x
+		};
+		Characters.insert(std::pair<GLchar, Character>(c, character));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+	// Destroy FreeType once we're finished
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+
+	// Configure VAO/VBO for texture quads
 	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	GLuint vbo;
 	glGenBuffers(1, &vbo);
+	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	GLuint ebo;
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
 	UIRectangle sampleRect(-5.0f, 5.0f, 10.0f, 5.0f, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
-	sampleRect.setZ(-5.0f);
+	sampleRect.setZ(-1.0f);
 	sampleRect.setup();
 
 
@@ -144,25 +248,24 @@ int main(int argc, char *argv[])
 
 	// assimp stuff
 
-	//std::string nanopath("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
-	//std::string nanotexture("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit");
-	std::string nanopath("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file\\Body_Mesh_Rigged.fbx");
-	std::string nanotexture("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file");
+
+	std::string nanopath("C:\\po7q2ieuk3r4-Body_Mesh_Rigged\\file\\Body_Mesh_Rigged.fbx");
+	std::string nanotexture("C:\\po7q2ieuk3r4-Body_Mesh_Rigged\\file");
 	Model nanoModel = Importer::loadModel(nanopath, nanotexture);
 	nanoModel.setup();
 	nanoModel.scale(0.005f, 0.005f, 0.005f);
 	nanoModel.translate(-200.0f, 0.0f, 0.0f);
 
-	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
-	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
+	std::string gpath("C:\\Girl\\girl.obj");
+	std::string gtexture("C:\\Girl/Texture");
 	Model girlModel = Importer::loadModel(gpath, gtexture);
 	girlModel.setup();
 	girlModel.scale(0.2f, 0.2f, 0.2f);
 	girlModel.translate(5.0f, 0.0f, 0.0f);
 	girlModel.rotateX(-90.0f);
 
-	std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
-	std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
+	std::string path("C:\\bob/bob_lamp_update_export.md5mesh");
+	std::string texture("C:\\bob/");
 	//std::string path("C:\\Users/Alex Hu/Documents/Model/agent/Agent_FBX/AgentWalk.fbx");
 	//std::string texture("C:\\Users/Alex Hu/Documents/Model/agent/Character");
 	Model bobModel = Importer::loadModel(path, texture);
@@ -227,6 +330,9 @@ int main(int argc, char *argv[])
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//--------------------------------------------------------------------------------------------------------
 
 	MyAnimatedMeshClass myModel;
@@ -256,7 +362,8 @@ int main(int argc, char *argv[])
 	unsigned int frameCount = 0;
 	bool rectReverse = true;
 	float rectWidth = 10.0f;
-
+	std::string inputCounter;
+	inputCounter = "Input counts: ";
 	SDL_Event windowEvent;
 	bool isRunning = true;
 	while (isRunning)
@@ -272,6 +379,7 @@ int main(int argc, char *argv[])
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_LEFT))
 			{
 				camera.translateRight(-0.25);
+				inputCounter += ":) ";
 				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
@@ -363,7 +471,7 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_l))
 			{
-				currentFrame = myModel.getMaxAnimations ()- 1;
+				currentFrame = myModel.getMaxAnimations() - 1;
 				myModel.setAnimationIndex(currentFrame);
 			}
 
@@ -383,12 +491,59 @@ int main(int argc, char *argv[])
 				displayGirlScene = !displayGirlScene;
 			}
 
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_3))
+			{
+				                            if( Mix_PlayingMusic() == 0 )
+                            {
+                                //Play the music
+                                Mix_PlayMusic( gMusic, -1 );
+                            }
+                            //If music is being played
+                            else
+                            {
+                                //If the music is paused
+                                if( Mix_PausedMusic() == 1 )
+                                {
+                                    //Resume the music
+                                    Mix_ResumeMusic();
+                                }
+                                //If the music is playing
+                                else
+                                {
+                                    //Pause the music
+                                    Mix_PauseMusic();
+                                }
+                            }
+			}
+
+			if ((windowEvent.type == SDL_JOYDEVICEADDED))
+			{
+				gGameController = SDL_JoystickOpen(0);
+				if (gGameController == NULL)
+				{
+					printf("Warning: Unable to open game controller! SDL Error: %s\n", SDL_GetError());
+				}
+				printf("JOY DEVICE ADDED\n");
+			}
+
+			if ((windowEvent.type == SDL_JOYDEVICEREMOVED))
+			{
+				printf("JOY DEVICE REMOVED\n");
+			}
+
+			if ((windowEvent.type == SDL_JOYHATMOTION))
+			{
+				printf("JOY HAT MOTION!!!!\n");
+			}
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
-
 		// Clear the screen to black
 		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		RenderText(textShaderProgram, inputCounter, 300.0f, 340.0f, 0.5f, glm::vec3(0.5, 0.8f, 0.2f));
+		RenderText(textShaderProgram, "Player 2 Text", 600.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
+		RenderText(textShaderProgram, "Player 1 TextOH JUST TESTING IF LONG TEXT IS BAD IDK LOL", 25.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));
 
 		shaderProgram.use();
 
@@ -422,28 +577,28 @@ int main(int argc, char *argv[])
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);*/
 
-		if (frameCount >= 15)
-		{
-			sampleRect.setWidth(rectWidth);
-			if (rectReverse)
-			{
-				rectWidth -= 1.0f;
-			}
-			else
-			{
-				rectWidth += 1.0f;
-			}
-			if (rectWidth <= 0.0f)
-			{
-				rectReverse = false;
-			}
-			if (rectWidth >= 10.0f)
-			{
-				rectReverse = true;
-			}
-			frameCount = 0;
-		}
-		++frameCount;
+		//if (frameCount >= 15)
+		//{
+		//	sampleRect.setWidth(rectWidth);
+		//	if (rectReverse)
+		//	{
+		//		rectWidth -= 1.0f;
+		//	}
+		//	else
+		//	{
+		//		rectWidth += 1.0f;
+		//	}
+		//	if (rectWidth <= 0.0f)
+		//	{
+		//		rectReverse = false;
+		//	}
+		//	if (rectWidth >= 10.0f)
+		//	{
+		//		rectReverse = true;
+		//	}
+		//	frameCount = 0;
+		//}
+		//++frameCount;
 		sampleRect.draw(shapeUniColor);
 
 		shaderProgram.use();
@@ -472,9 +627,9 @@ int main(int argc, char *argv[])
 
 	shaderProgram.cleanup();
 	shapeShaderProgram.cleanup();
+	textShaderProgram.cleanup();
 
 	glDeleteBuffers(1, &vbo);
-	glDeleteBuffers(1, &ebo);
 	glDeleteVertexArrays(1, &vao);
 
 	sampleRect.cleanup();
@@ -487,4 +642,51 @@ int main(int argc, char *argv[])
 
 	SDL_Quit();
 	return 0;
+}
+
+
+
+void RenderText(ShaderProgram &shader, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
+{
+	// Activate corresponding render state	
+	shader.use();
+	glUniform3f(glGetUniformLocation(shader.getProgram(), "textColor"), color.x, color.y, color.z);
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(vao);
+
+	// Iterate through all characters
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = Characters[*c];
+
+		GLfloat xpos = x + ch.Bearing.x * scale;
+		GLfloat ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+		GLfloat w = ch.Size.x * scale;
+		GLfloat h = ch.Size.y * scale;
+		// Update VBO for each character
+		GLfloat vertices[6][4] = {
+			{ xpos,     ypos + h,   0.0, 0.0 },
+			{ xpos,     ypos,       0.0, 1.0 },
+			{ xpos + w, ypos,       1.0, 1.0 },
+
+			{ xpos,     ypos + h,   0.0, 0.0 },
+			{ xpos + w, ypos,       1.0, 1.0 },
+			{ xpos + w, ypos + h,   1.0, 0.0 }
+		};
+		// Render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		// Update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// Render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.Advance >> 6) * scale; // Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
