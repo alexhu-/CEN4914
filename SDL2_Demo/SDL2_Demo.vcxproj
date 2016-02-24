@@ -69,8 +69,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\src;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\glm\;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\include\;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\SDL2;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\projects\VC9\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\lib\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\lib\Release\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\src;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\glm\;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\include\;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\SDL2;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\objs\vc2010\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\projects\VC9\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\lib\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\lib\Release\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
@@ -83,7 +83,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;SDL2Main.lib;SDL2.lib;assimp-vc140-mtd.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew32s.lib;opengl32.lib;SDL2Main.lib;SDL2.lib;assimp-vc140-mtd.lib;SOIL.lib;freetype263d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
@@ -134,12 +134,15 @@
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="MyAnimatedMeshClass.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="UIRectangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="alanFragment.txt" />
+    <Text Include="alanVertex.txt" />
     <Text Include="tutorialFragmentShader.txt" />
     <Text Include="tutorialVertexShader.txt" />
     <Text Include="UIFragmentShader.txt" />
@@ -152,6 +155,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelData.h" />
+    <ClInclude Include="MyAnimatedMeshClass.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="UIRectangle.h" />

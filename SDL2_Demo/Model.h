@@ -47,6 +47,8 @@ public:
 	// Functions to get the model matrix
 	glm::mat4 getModelMatrix();
 
+	void printAnimationData();
+
 private:
 	// mesh information
 	std::vector<BoneData> mBones;

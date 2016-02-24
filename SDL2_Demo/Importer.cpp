@@ -101,11 +101,12 @@ GLuint Importer::loadTexture(std::string path, std::string directory)
 	if (!image)
 	{
 		std::string cleanPath = path.substr(path.find_last_of("\\") + 1);
-		fileName = directory + '/' + cleanPath;
+		fileName = directory + "/" + cleanPath;
 		image = SOIL_load_image(fileName.c_str(), &width, &height, &channel, SOIL_LOAD_RGB);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, textureId);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glGenerateMipmap(GL_TEXTURE_2D);
 

@@ -21,6 +21,8 @@
 #include "ShaderProgram.h"
 #include "UIRectangle.h"
 
+#include "MyAnimatedMeshClass.h"
+
 void matrixExamples()
 {
 	// create a default identity matrix
@@ -62,7 +64,7 @@ int main(int argc, char *argv[])
 
 	glewExperimental = GL_TRUE;
 	glewInit();
-	
+
 	// stuff
 
 	GLfloat vertices[] = {
@@ -141,13 +143,15 @@ int main(int argc, char *argv[])
 
 
 	// assimp stuff
-	
-	std::string nanopath("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
-	std::string nanotexture("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit");
+
+	//std::string nanopath("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit\\nanosuit.obj");
+	//std::string nanotexture("C:\\Users\\Alex Hu\\Documents\\Model\\nanosuit");
+	std::string nanopath("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file\\Body_Mesh_Rigged.fbx");
+	std::string nanotexture("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file");
 	Model nanoModel = Importer::loadModel(nanopath, nanotexture);
 	nanoModel.setup();
-	nanoModel.scale(0.1f, 0.1f, 0.1f);
-	nanoModel.translate(-10.0f, 0.0f, 0.0f);
+	nanoModel.scale(0.005f, 0.005f, 0.005f);
+	nanoModel.translate(-200.0f, 0.0f, 0.0f);
 
 	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
 	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
@@ -167,7 +171,7 @@ int main(int argc, char *argv[])
 	bobModel.rotateX(-90.0f);
 
 
-// ----------------------------------------------------------------------------------------------
+	// ----------------------------------------------------------------------------------------------
 	// stuff for 3d stuff
 	// 3d stuff now
 
@@ -191,10 +195,10 @@ int main(int argc, char *argv[])
 	float moveUp = glm::radians(5.0f);
 	float ninety = glm::radians(90.0f);
 	/*glm::mat4 view = glm::lookAt(
-		cameraLocation, // camera location
-		cameraLook, // where the camera is looking at
-		cameraUp // which way is up, we define z-axis is up so xy plane is ground
-		);*/
+	cameraLocation, // camera location
+	cameraLook, // where the camera is looking at
+	cameraUp // which way is up, we define z-axis is up so xy plane is ground
+	);*/
 	Camera camera(cameraLocation, glm::vec3(0.0f, 0.0f, -1.0f), cameraUp);
 	glm::mat4 view = camera.getViewMatrix();
 	GLint uniView = glGetUniformLocation(shaderProgramId, "view");
@@ -208,7 +212,7 @@ int main(int argc, char *argv[])
 		);
 	GLint uniProj = glGetUniformLocation(shaderProgramId, "proj");
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
-	
+
 
 	shapeShaderProgram.use();
 
@@ -223,26 +227,31 @@ int main(int argc, char *argv[])
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
-//--------------------------------------------------------------------------------------------------------
+	//--------------------------------------------------------------------------------------------------------
+
+	MyAnimatedMeshClass myModel;
 
 	Scene bobScene;
 	bobScene.addModel(&bobModel);
+	//bobScene.addModel(&nanoModel);
 
 	Scene girlScene;
 	girlScene.addModel(&girlModel);
-	girlScene.addModel(&nanoModel);
+	//girlScene.addModel(&nanoModel);
+
+	nanoModel.printAnimationData();
 
 	bool displayBobScene = true;
 	bool displayGirlScene = true;
 
 	unsigned int prevTime = SDL_GetTicks();
-	unsigned int fpsArray[] = {16, 17, 17};
+	unsigned int fpsArray[] = { 16, 17, 17 };
 	unsigned int fpsCount = 0;
 	float fpsAverage = 0;
 	unsigned int startTime = prevTime;
 
 	unsigned int currentFrame = 0;
-	bool playAnimation = false;
+	float timeInMs = 0.0;
 
 	unsigned int frameCount = 0;
 	bool rectReverse = true;
@@ -322,7 +331,46 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_p))
 			{
-			
+				++currentFrame;
+				if (currentFrame >= myModel.getMaxAnimations())
+				{
+					currentFrame = 0;
+				}
+				myModel.setAnimationIndex(currentFrame);
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_o))
+			{
+				--currentFrame;
+				if (currentFrame < 0)
+				{
+					currentFrame = myModel.getMaxAnimations() - 1;
+				}
+				myModel.setAnimationIndex(currentFrame);
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_9))
+			{
+				currentFrame = 0;
+				myModel.setAnimationIndex(currentFrame);
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_0))
+			{
+				currentFrame = myModel.getMaxAnimations() / 3;
+				myModel.setAnimationIndex(currentFrame);
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_l))
+			{
+				currentFrame = myModel.getMaxAnimations ()- 1;
+				myModel.setAnimationIndex(currentFrame);
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_k))
+			{
+				currentFrame = 2 * myModel.getMaxAnimations() / 3;
+				myModel.setAnimationIndex(currentFrame);
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_1))
@@ -345,6 +393,19 @@ int main(int argc, char *argv[])
 		shaderProgram.use();
 
 		unsigned int runningTime = SDL_GetTicks() - startTime;
+		timeInMs = 16.66667f;
+		std::vector<glm::mat4> boneTransforms = nanoModel.getBoneTransforms(myModel.getAnimationTime((float)timeInMs), 0);
+
+		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		{
+			if (i < 100)
+			{
+				setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
+			}
+		}
+
+		nanoModel.draw(sampler, uniModel, glm::mat4(1.0f));
+
 		if (displayBobScene)
 		{
 			bobScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
@@ -390,7 +451,7 @@ int main(int argc, char *argv[])
 		unsigned int currTime = SDL_GetTicks();
 		unsigned int elapsed = currTime - prevTime;
 
-		while (elapsed < fpsArray[(fpsCount%60) / 20])
+		while (elapsed < fpsArray[(fpsCount % 60) / 20])
 		{
 			currTime = SDL_GetTicks();
 			elapsed = currTime - prevTime;
@@ -400,7 +461,7 @@ int main(int argc, char *argv[])
 
 		fpsAverage = fpsAverage + (1000.0f / (float)elapsed);
 
-		std::string fpsTemp = std::to_string(fpsAverage/(float)(fpsCount + 1));
+		std::string fpsTemp = std::to_string(fpsAverage / (float)(fpsCount + 1));
 		const char *fpsString = fpsTemp.c_str();
 		SDL_SetWindowTitle(window, fpsString);
 

@@ -42,6 +42,9 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MyAnimatedMeshClass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="tutorialFragmentShader.txt">
@@ -54,6 +57,12 @@
       <Filter>Source Files</Filter>
     </Text>
     <Text Include="UIVertexShader.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="alanFragment.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="alanVertex.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
@@ -83,6 +92,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyAnimatedMeshClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

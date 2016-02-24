@@ -290,3 +290,12 @@ void Model::draw(GLint sampler, GLint modelUniform, glm::mat4 originalModel)
 	this->draw(sampler);
 	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(originalModel));
 }
+
+void Model::printAnimationData()
+{
+	float ticksPerSecond = mAnimationEntries[0].ticksPerSecond;
+	float duration = mAnimationEntries[0].duration;
+
+	std::cout << "Ticks per second: " << ticksPerSecond << std::endl;
+	std::cout << "Total duration: " << duration << std::endl;
+}
