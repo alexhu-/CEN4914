@@ -69,8 +69,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\src;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\glm\;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\include\;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\SDL2;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\objs\vc2010\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\projects\VC9\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\lib\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\lib\Release\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL2_mixer-2.0.1\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\src;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\glm\;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\include\;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\SDL2;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL2_mixer-2.0.1\lib\x86;C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\objs\vc2010\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\projects\VC9\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\lib\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\lib\Release\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
@@ -83,7 +83,7 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glew32s.lib;opengl32.lib;SDL2Main.lib;SDL2.lib;assimp-vc140-mtd.lib;SOIL.lib;freetype263d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype263d.lib;SDL2_mixer.lib;glew32s.lib;opengl32.lib;SDL2Main.lib;SDL2.lib;assimp-vc140-mtd.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
@@ -131,6 +131,9 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="CharacterData.cpp" />
+    <ClCompile Include="CharacterState.cpp" />
+    <ClCompile Include="CharacterStateManager.cpp" />
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -141,8 +144,8 @@
     <ClCompile Include="UIRectangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="alanFragment.txt" />
-    <Text Include="alanVertex.txt" />
+    <Text Include="textFragmentShader.txt" />
+    <Text Include="textVertexShader.txt" />
     <Text Include="tutorialFragmentShader.txt" />
     <Text Include="tutorialVertexShader.txt" />
     <Text Include="UIFragmentShader.txt" />
@@ -151,6 +154,9 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="CharacterData.h" />
+    <ClInclude Include="CharacterState.h" />
+    <ClInclude Include="CharacterStateManager.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
@@ -159,6 +165,12 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="UIRectangle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Models\Body_Mesh_Rigged.fbx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Models\red.tga" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

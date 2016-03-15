@@ -45,6 +45,15 @@
     <ClCompile Include="MyAnimatedMeshClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CharacterState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterStateManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CharacterData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="tutorialFragmentShader.txt">
@@ -59,10 +68,10 @@
     <Text Include="UIVertexShader.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="alanFragment.txt">
+    <Text Include="textFragmentShader.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="alanVertex.txt">
+    <Text Include="textVertexShader.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
@@ -97,5 +106,24 @@
     <ClInclude Include="MyAnimatedMeshClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CharacterState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterStateManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CharacterData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Models\Body_Mesh_Rigged.fbx">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Models\red.tga">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

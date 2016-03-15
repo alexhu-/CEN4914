@@ -177,7 +177,7 @@ void MyAnimatedMeshClass::jumpAttackSetup()
 	pModelAction->end = 288;
 	pModelAction->totalStartup = 4;
 	pModelAction->totalActive = 6;
-	pModelAction->totalRecovery = 20;
+	pModelAction->totalRecovery = 50;
 
 	pModelAction = &mActions[9];
 
@@ -188,7 +188,7 @@ void MyAnimatedMeshClass::jumpAttackSetup()
 	pModelAction->end = 300;
 	pModelAction->totalStartup = 11;
 	pModelAction->totalActive = 12;
-	pModelAction->totalRecovery = 20;
+	pModelAction->totalRecovery = 50;
 
 	pModelAction = &mActions[10];
 
@@ -199,7 +199,7 @@ void MyAnimatedMeshClass::jumpAttackSetup()
 	pModelAction->end = 312;
 	pModelAction->totalStartup = 5;
 	pModelAction->totalActive = 4;
-	pModelAction->totalRecovery = 20;
+	pModelAction->totalRecovery = 50;
 
 	pModelAction = &mActions[11];
 
@@ -210,7 +210,7 @@ void MyAnimatedMeshClass::jumpAttackSetup()
 	pModelAction->end = 324;
 	pModelAction->totalStartup = 9;
 	pModelAction->totalActive = 8;
-	pModelAction->totalRecovery = 20;
+	pModelAction->totalRecovery = 50;
 }
 
 void MyAnimatedMeshClass::movementSetup()
@@ -256,16 +256,16 @@ void MyAnimatedMeshClass::movementSetup()
 	pModelAction->recovery = 66;
 	pModelAction->end = 72;
 	pModelAction->totalStartup = 3;
-	pModelAction->totalActive = 36;
-	pModelAction->totalRecovery = 6;
+	pModelAction->totalActive = 53;
+	pModelAction->totalRecovery = 4;
 
 	pModelAction = &mActions[16];
 
 	// crouch
-	pModelAction->start = 72;
-	pModelAction->active = 80;
-	pModelAction->recovery = 88;
-	pModelAction->end = 96;
+	pModelAction->start = 83;//72;
+	pModelAction->active = 84;//80;
+	pModelAction->recovery = 85;//88;
+	pModelAction->end = 86;//96;
 	pModelAction->totalStartup = 8;
 	pModelAction->totalActive = 8;
 	pModelAction->totalRecovery = 8;
@@ -355,4 +355,36 @@ void MyAnimatedMeshClass::knockdownSetup()
 	pModelAction->totalStartup = 12;
 	pModelAction->totalActive = 48;
 	pModelAction->totalRecovery = 12;
+}
+
+unsigned int MyAnimatedMeshClass::getTotalStartupFrames(unsigned int index)
+{
+	if (index < mAnimationCount)
+	{
+		return mActions[index].totalStartup;
+	}
+}
+
+unsigned int MyAnimatedMeshClass::getTotalActiveFrames(unsigned int index)
+{
+	if (index < mAnimationCount)
+	{
+		return mActions[index].totalActive;
+	}
+}
+
+unsigned int MyAnimatedMeshClass::getTotalRecoveryFrames(unsigned int index)
+{
+	if (index < mAnimationCount)
+	{
+		return mActions[index].totalRecovery;
+	}
+}
+
+unsigned int MyAnimatedMeshClass::getTotalFrames(unsigned int index)
+{
+	if (index < mAnimationCount)
+	{
+		return mActions[index].totalRecovery + mActions[index].totalActive + mActions[index].totalStartup;
+	}
 }

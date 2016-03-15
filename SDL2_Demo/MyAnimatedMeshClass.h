@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CharacterData.h"
 #include "Model.h"
 
 // start active recovery end frames in terms of original 24fps
@@ -50,13 +51,18 @@ struct ModelAction
 
 // Class with hardcoded values to separate each animation of the model
 // Assumes the game will be running at 60 fps
-class MyAnimatedMeshClass
+class MyAnimatedMeshClass : CharacterData
 {
 public:
 	MyAnimatedMeshClass();
 	unsigned int getMaxAnimations();
 	void setAnimationIndex(unsigned int index);
 	float getAnimationTime(float timeMS);
+
+	unsigned int getTotalStartupFrames(unsigned int index) override;
+	unsigned int getTotalActiveFrames(unsigned int index) override;
+	unsigned int getTotalRecoveryFrames(unsigned int index) override;
+	unsigned int getTotalFrames(unsigned int index) override;
 
 private:
 	void standAttackSetup(); // index 0 to 3
