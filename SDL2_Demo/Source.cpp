@@ -19,6 +19,9 @@
 #include <SDL_mixer.h>
 
 #include "Camera.h"
+#include "CharacterData.h"
+#include "CharacterState.h"
+#include "CharacterStateManager.h"
 #include "Importer.h"
 #include "Model.h"
 #include "Scene.h"
@@ -50,6 +53,10 @@ void setBoneTransforms(GLuint shader, GLuint index, glm::mat4 transform)
 
 int main(int argc, char *argv[])
 {
+	// the width and height of the screen in pixels
+	unsigned int WINDOW_WIDTH = 1024;
+	unsigned int WINDOW_HEIGHT = 576;
+
 	//The music that will be played
 	Mix_Music *gMusic = NULL;
 
@@ -78,17 +85,28 @@ int main(int argc, char *argv[])
 	}
 
 	SDL_Joystick* gGameController = NULL;
+	std::vector<SDL_Joystick*> joysticks;
 	//Check for joysticks
 	if (SDL_NumJoysticks() < 1)
 	{
 		printf("Warning: No joysticks connected!\n");
+	}
+	else
+	{
+		printf("Controllers are connected:\n");
+
+		for (unsigned int i = 0; i < SDL_NumJoysticks(); i++)
+		{
+			joysticks.push_back(SDL_JoystickOpen(i));
+			printf("    %s\n", SDL_JoystickName(joysticks[i]));
+		}
 	}
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
 
-	SDL_Window *window = SDL_CreateWindow("OpenGL", 100, 100, 800, 600, SDL_WINDOW_OPENGL);
+	SDL_Window *window = SDL_CreateWindow("OpenGL", 100, 100, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
 
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 
@@ -145,7 +163,7 @@ int main(int argc, char *argv[])
 	textShaderProgram.compileShaderProgram();
 	GLuint textProgramId = textShaderProgram.getProgram();
 	textShaderProgram.use();
-	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(800), 0.0f, static_cast<GLfloat>(600));
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<GLfloat>(WINDOW_WIDTH), 0.0f, static_cast<GLfloat>(WINDOW_HEIGHT));
 	glUniformMatrix4fv(glGetUniformLocation(textShaderProgram.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
 	// FreeType
@@ -248,30 +266,31 @@ int main(int argc, char *argv[])
 	// assimp stuff
 
 
-	std::string nanopath("C:\\po7q2ieuk3r4-Body_Mesh_Rigged\\file\\Body_Mesh_Rigged.fbx");
-	std::string nanotexture("C:\\po7q2ieuk3r4-Body_Mesh_Rigged\\file");
+	//std::string nanopath("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file2\\Body_Mesh_Rigged.fbx");
+	std::string nanopath("Models\\Body_Mesh_Rigged.fbx");
+	//std::string nanotexture("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file2");
+	std::string nanotexture("Models");
 	Model nanoModel = Importer::loadModel(nanopath, nanotexture);
 	nanoModel.setup();
 	nanoModel.scale(0.005f, 0.005f, 0.005f);
 	nanoModel.translate(-200.0f, 0.0f, 0.0f);
-
-	std::string gpath("C:\\Girl\\girl.obj");
-	std::string gtexture("C:\\Girl/Texture");
+	nanoModel.rotateY(90.0f);
+	/*
+	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
+	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
 	Model girlModel = Importer::loadModel(gpath, gtexture);
 	girlModel.setup();
 	girlModel.scale(0.2f, 0.2f, 0.2f);
 	girlModel.translate(5.0f, 0.0f, 0.0f);
 	girlModel.rotateX(-90.0f);
 
-	std::string path("C:\\bob/bob_lamp_update_export.md5mesh");
-	std::string texture("C:\\bob/");
-	//std::string path("C:\\Users/Alex Hu/Documents/Model/agent/Agent_FBX/AgentWalk.fbx");
-	//std::string texture("C:\\Users/Alex Hu/Documents/Model/agent/Character");
+	std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
+	std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
 	Model bobModel = Importer::loadModel(path, texture);
 	bobModel.setup();
 	bobModel.scale(0.2f, 0.2f, 0.2f);
 	bobModel.rotateX(-90.0f);
-
+	*/
 
 	// ----------------------------------------------------------------------------------------------
 	// stuff for 3d stuff
@@ -285,22 +304,8 @@ int main(int argc, char *argv[])
 
 	// make our camera matrix
 	glm::vec3 cameraLocation = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraLook = glm::vec3(0.0f, 0.0f, 2.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-	glm::vec3 goUp = glm::vec3(0.0f, 0.25f, 0.0f);
-	glm::vec3 goRight = glm::vec3(0.25f, 0.0f, 0.0f);
-	glm::vec3 goForward = glm::vec3(0.0f, 0.0f, -0.25f);
-	glm::vec3 lookUp = glm::vec3(0.0f, 0.0f, 0.0f);
-	float angleUp = glm::radians(180.0f);
-	float angleRight = glm::radians(180.0f);
-	float fullCircle = glm::radians(360.0f);
-	float moveUp = glm::radians(5.0f);
-	float ninety = glm::radians(90.0f);
-	/*glm::mat4 view = glm::lookAt(
-	cameraLocation, // camera location
-	cameraLook, // where the camera is looking at
-	cameraUp // which way is up, we define z-axis is up so xy plane is ground
-	);*/
+
 	Camera camera(cameraLocation, glm::vec3(0.0f, 0.0f, -1.0f), cameraUp);
 	glm::mat4 view = camera.getViewMatrix();
 	GLint uniView = glGetUniformLocation(shaderProgramId, "view");
@@ -308,7 +313,7 @@ int main(int argc, char *argv[])
 
 	glm::mat4 proj = glm::perspective(
 		45.0f, // vertical field of view
-		800.0f / 600.0f,	 // aspect ratio of screen 
+		(float)WINDOW_WIDTH / (float)WINDOW_HEIGHT,	 // aspect ratio of screen 
 		0.1f,				 // near planes - clipping planes, anything outside is clipped
 		100.0f				 // far planes - same as above
 		);
@@ -329,21 +334,22 @@ int main(int argc, char *argv[])
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//--------------------------------------------------------------------------------------------------------
 
 	MyAnimatedMeshClass myModel;
+	myModel.setAnimationIndex(MoveSet::IDLE);
 
-	Scene bobScene;
+	/*Scene bobScene;
 	bobScene.addModel(&bobModel);
 	//bobScene.addModel(&nanoModel);
 
 	Scene girlScene;
 	girlScene.addModel(&girlModel);
 	//girlScene.addModel(&nanoModel);
-
+	*/
 	nanoModel.printAnimationData();
 
 	bool displayBobScene = true;
@@ -355,8 +361,18 @@ int main(int argc, char *argv[])
 	float fpsAverage = 0;
 	unsigned int startTime = prevTime;
 
+	// For animation test
+	int stateDuration = 0;
+	int actionDuration = 0;
+	unsigned int controllerInputs = 0;
+
+	//CharacterState fighterState = CharacterState();
+	CharacterStateManager fighterStateManager((CharacterData*)(&myModel));
+
 	unsigned int currentFrame = 0;
 	float timeInMs = 0.0;
+
+	int controllerDirection = 0;
 
 	unsigned int frameCount = 0;
 	bool rectReverse = true;
@@ -379,105 +395,51 @@ int main(int argc, char *argv[])
 			{
 				camera.translateRight(-0.25);
 				inputCounter += ":) ";
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_RIGHT))
 			{
 				camera.translateRight(0.25);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_UP))
 			{
 				camera.translateUp(0.25);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_DOWN))
 			{
 				camera.translateUp(-0.25);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_z))
 			{
 				camera.translateForward(0.25);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_x))
 			{
 				camera.translateForward(-0.25);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_w))
 			{
 				camera.rotateUp(6.0f);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_s))
 			{
 				camera.rotateUp(-6.0f);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_a))
 			{
 				camera.rotateRight(3.0f);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_d))
 			{
 				camera.rotateRight(-3.0f);
-				//glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-			}
-
-			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_p))
-			{
-				++currentFrame;
-				if (currentFrame >= myModel.getMaxAnimations())
-				{
-					currentFrame = 0;
-				}
-				myModel.setAnimationIndex(currentFrame);
-			}
-
-			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_o))
-			{
-				--currentFrame;
-				if (currentFrame < 0)
-				{
-					currentFrame = myModel.getMaxAnimations() - 1;
-				}
-				myModel.setAnimationIndex(currentFrame);
-			}
-
-			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_9))
-			{
-				currentFrame = 0;
-				myModel.setAnimationIndex(currentFrame);
-			}
-
-			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_0))
-			{
-				currentFrame = myModel.getMaxAnimations() / 3;
-				myModel.setAnimationIndex(currentFrame);
-			}
-
-			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_l))
-			{
-				currentFrame = myModel.getMaxAnimations() - 1;
-				myModel.setAnimationIndex(currentFrame);
-			}
-
-			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_k))
-			{
-				currentFrame = 2 * myModel.getMaxAnimations() / 3;
-				myModel.setAnimationIndex(currentFrame);
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_1))
@@ -492,27 +454,134 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_3))
 			{
-				                            if( Mix_PlayingMusic() == 0 )
-                            {
-                                //Play the music
-                                Mix_PlayMusic( gMusic, -1 );
-                            }
-                            //If music is being played
-                            else
-                            {
-                                //If the music is paused
-                                if( Mix_PausedMusic() == 1 )
-                                {
-                                    //Resume the music
-                                    Mix_ResumeMusic();
-                                }
-                                //If the music is playing
-                                else
-                                {
-                                    //Pause the music
-                                    Mix_PauseMusic();
-                                }
-                            }
+				if (Mix_PlayingMusic() == 0)
+				{
+					//Play the music
+					Mix_PlayMusic(gMusic, -1);
+				}
+				//If music is being played
+				else
+				{
+					//If the music is paused
+					if (Mix_PausedMusic() == 1)
+					{
+						//Resume the music
+						Mix_ResumeMusic();
+					}
+					//If the music is playing
+					else
+					{
+						//Pause the music
+						Mix_PauseMusic();
+					}
+				}
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_u))
+			{
+				// jump
+				controllerInputs |= GameInput::INPUT_UP;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_k))
+			{
+				// walk forward
+				controllerInputs |= GameInput::INPUT_RIGHT;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_h))
+			{
+				controllerInputs |= GameInput::INPUT_LEFT;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_j))
+			{
+				controllerInputs |= GameInput::INPUT_DOWN;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_i))
+			{
+				// punch1
+				controllerInputs |= GameInput::INPUT_PUNCH1;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_o))
+			{
+				// punch2
+				controllerInputs |= GameInput::INPUT_PUNCH2;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_p))
+			{
+				// kick1
+				//currentFrame = 2 + controllerDirection;
+				//myModel.setAnimationIndex(currentFrame);
+				//actionDuration = myModel.getTotalFrames(currentFrame);
+				controllerInputs |= GameInput::INPUT_KICK1;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_l))
+			{
+				// kick2
+				controllerInputs |= GameInput::INPUT_KICK2;
+				/*
+				CharacterState player1State = fighterStateManager.getState();
+				Action player1Action = player1State.getAction();
+				HorizontalDirection player1HD = player1State.getHorizontalDirection();
+				VerticalDirection player1VD = player1State.getVerticalDirection();
+				unsigned int player1Time = player1State.getStateTimer();
+
+				std::cout << "Action: " << (int) player1Action << std::endl;
+				std::cout << "HD: " << (int)player1HD << std::endl;
+				std::cout << "VD: " << (int)player1VD << std::endl;
+				std::cout << "Time: " << (int)player1Time << std::endl;
+				*/
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_u))
+			{
+				// jump
+				controllerInputs &= ~GameInput::INPUT_UP;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_k))
+			{
+				// walk forward
+				controllerInputs &= ~GameInput::INPUT_RIGHT;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_h))
+			{
+				controllerInputs &= ~GameInput::INPUT_LEFT;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_j))
+			{
+				controllerInputs &= ~GameInput::INPUT_DOWN;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_i))
+			{
+				// punch1
+				controllerInputs &= ~GameInput::INPUT_PUNCH1;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_o))
+			{
+				// punch2
+				controllerInputs &= ~GameInput::INPUT_PUNCH2;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_p))
+			{
+				// kick1
+				controllerInputs &= ~GameInput::INPUT_KICK1;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_l))
+			{
+				// kick2
+				controllerInputs &= ~GameInput::INPUT_KICK2;
 			}
 
 			if ((windowEvent.type == SDL_JOYDEVICEADDED))
@@ -530,16 +599,117 @@ int main(int argc, char *argv[])
 				printf("JOY DEVICE REMOVED\n");
 			}
 
-			if ((windowEvent.type == SDL_JOYHATMOTION))
+			/*if ((windowEvent.type == SDL_JOYHATMOTION))
 			{
-				printf("JOY HAT MOTION!!!!\n");
+			//printf("JOY HAT MOTION!!!!\n");
+			if (windowEvent.jhat.value & SDL_HAT_UP)
+			{
+			currentFrame = 15;
+			controllerDirection = 8;
+			myModel.setAnimationIndex(currentFrame);
 			}
+
+			if (windowEvent.jhat.value & SDL_HAT_DOWN)
+			{
+			currentFrame = 16;
+			controllerDirection = 4;
+			myModel.setAnimationIndex(currentFrame);
+			}
+
+			if (windowEvent.jhat.value & SDL_HAT_RIGHT)
+			{
+			controllerDirection = 0;
+			currentFrame = 13;
+			myModel.setAnimationIndex(currentFrame);
+			}
+
+			if (windowEvent.jhat.value & SDL_HAT_LEFT)
+			{
+			controllerDirection = 0;
+			currentFrame = 14;
+			myModel.setAnimationIndex(currentFrame);
+			}
+			}*/
+
+			/*if (windowEvent.type == SDL_JOYBUTTONDOWN)
+			{
+			switch (windowEvent.jbutton.button)
+			{
+			case SDL_CONTROLLER_BUTTON_A :
+			currentFrame = 0 + controllerDirection;
+			myModel.setAnimationIndex(currentFrame);
+			break;
+			case SDL_CONTROLLER_BUTTON_B:
+			currentFrame = 1 + controllerDirection;
+			myModel.setAnimationIndex(currentFrame);
+			break;
+			case SDL_CONTROLLER_BUTTON_X:
+			currentFrame = 2 + controllerDirection;
+			myModel.setAnimationIndex(currentFrame);
+			break;
+			case SDL_CONTROLLER_BUTTON_Y:
+			currentFrame = 3 + controllerDirection;
+			myModel.setAnimationIndex(currentFrame);
+			break;
+			default:
+			break;
+			}
+			}*/
+
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
+
+		// update character moves
+		fighterStateManager.setGameInputs(controllerInputs);
+		fighterStateManager.update();
+		CharacterState player1State = fighterStateManager.getState();
+		Action player1Action = player1State.getAction();
+		HorizontalDirection player1HD = player1State.getHorizontalDirection();
+		VerticalDirection player1VD = player1State.getVerticalDirection();
+		unsigned int player1Time = player1State.getStateTimer();
+
+		if (player1Time == 1)
+		{
+			controllerDirection = player1VD * 4;
+
+			if (player1Action == Action::ACTION_PUNCH1 ||
+				player1Action == Action::ACTION_PUNCH2 ||
+				player1Action == Action::ACTION_KICK1 ||
+				player1Action == Action::ACTION_KICK2)
+			{
+				currentFrame = player1Action - 4 + controllerDirection;
+				myModel.setAnimationIndex(currentFrame);
+			}
+			if (player1HD == HorizontalDirection::HDIRECTION_FORWARD && player1VD == VerticalDirection::VDIRECTION_STAND && player1Action == Action::ACTION_NONE)
+			{
+				myModel.setAnimationIndex(MoveSet::WALK_FORWARD);
+			}
+			if (player1HD == HorizontalDirection::HDIRECTION_BACKWARD && player1VD == VerticalDirection::VDIRECTION_STAND && player1Action == Action::ACTION_NONE)
+			{
+				myModel.setAnimationIndex(MoveSet::WALK_BACKWARD);
+			}
+			if (player1VD == VerticalDirection::VDIRECTION_JUMP && player1Action == Action::ACTION_NONE)
+			{
+				myModel.setAnimationIndex(MoveSet::JUMP);
+			}
+			if (player1VD == VerticalDirection::VDIRECTION_CROUCH && player1Action == Action::ACTION_NONE)
+			{
+				myModel.setAnimationIndex(MoveSet::CROUCH);
+			}
+			if (player1VD == VerticalDirection::VDIRECTION_STAND && player1HD == HorizontalDirection::HDIRECTION_NEUTRAL && player1Action == Action::ACTION_NONE)
+			{
+				myModel.setAnimationIndex(MoveSet::IDLE);
+			}
+		}
+
+		//controllerInputs = GameInput::INPUT_NONE;
+		fighterStateManager.setGameInputs(GameInput::INPUT_NONE);
+
 		// Clear the screen to black
 		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		// render text
 		RenderText(textShaderProgram, inputCounter, 300.0f, 340.0f, 0.5f, glm::vec3(0.5, 0.8f, 0.2f), vao, vbo);
 		RenderText(textShaderProgram, "Player 2 Text", 600.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
 		RenderText(textShaderProgram, "Player 1 TextOH JUST TESTING IF LONG TEXT IS BAD IDK LOL", 25.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
@@ -560,14 +730,14 @@ int main(int argc, char *argv[])
 
 		nanoModel.draw(sampler, uniModel, glm::mat4(1.0f));
 
-		if (displayBobScene)
+		/*if (displayBobScene)
 		{
-			bobScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
+		bobScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
 		}
 		if (displayGirlScene)
 		{
-			girlScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
-		}
+		girlScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
+		}*/
 
 		shapeShaderProgram.use();
 		glUniformMatrix4fv(uniViewShape, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
@@ -624,6 +794,11 @@ int main(int argc, char *argv[])
 		SDL_GL_SwapWindow(window);
 	}
 
+	for (unsigned int i = 0; i < SDL_NumJoysticks(); i++)
+	{
+		SDL_JoystickClose(joysticks[i]);
+	}
+
 	shaderProgram.cleanup();
 	shapeShaderProgram.cleanup();
 	textShaderProgram.cleanup();
@@ -633,8 +808,8 @@ int main(int argc, char *argv[])
 
 	sampleRect.cleanup();
 
-	bobModel.clearGLBuffers();
-	girlModel.clearGLBuffers();
+	//bobModel.clearGLBuffers();
+	//girlModel.clearGLBuffers();
 	nanoModel.clearGLBuffers();
 
 	SDL_GL_DeleteContext(context);
