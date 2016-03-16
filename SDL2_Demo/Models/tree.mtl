@@ -1,0 +1,23 @@
+# Blender MTL File: 'None'
+# Material Count: 2
+
+newmtl Folha.014
+Ns 92.156863
+Ka 0.000000 0.000000 0.000000
+Kd 0.512000 0.512000 0.512000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_Kd ac.PNG
+map_d ac.PNG
+
+newmtl tronco.014
+Ns 92.156863
+Ka 0.000000 0.000000 0.000000
+Kd 0.512000 0.512000 0.512000
+Ks 0.000000 0.000000 0.000000
+Ni 1.000000
+d 0.000000
+illum 2
+map_d tr.PNG

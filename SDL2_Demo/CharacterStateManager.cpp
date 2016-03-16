@@ -61,7 +61,7 @@ void CharacterStateManager::update()
 	if (stateVerticalDirection == VerticalDirection::VDIRECTION_JUMP)
 	{
 		isJumping = true;
-		updateJump(true, mState.getStateTimer());
+		updateJump(isJumping, mState.getStateTimer() + mJumpTimer);
 	}
 
 	if (stateAction != Action::ACTION_NONE)
@@ -244,6 +244,7 @@ void CharacterStateManager::updateDirection(bool isDoingAction, bool isJumping)
 		mState.setVerticalDirection(VerticalDirection::VDIRECTION_JUMP);
 		mState.setStateTimer(0);
 		mState.setStatus(Status::STATUS_STARTUP);
+		mJumpTimer = 0;
 	}
 	else if (mInputs == GameInput::INPUT_NONE || !( mInputs & GameInput::INPUT_UP || mInputs & GameInput::INPUT_DOWN ))
 	{

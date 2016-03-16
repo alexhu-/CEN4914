@@ -168,9 +168,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Models\Body_Mesh_Rigged.fbx" />
+    <None Include="Models\field.mtl" />
+    <None Include="Models\tree.mtl" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Models\ac.PNG" />
+    <Image Include="Models\grass_grass_0127_01_s.tga" />
     <Image Include="Models\red.tga" />
+    <Image Include="Models\screen.PNG" />
+    <Image Include="Models\tr.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Models\field.obj" />
+    <Object Include="Models\tree.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

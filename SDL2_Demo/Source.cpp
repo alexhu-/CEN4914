@@ -275,6 +275,15 @@ int main(int argc, char *argv[])
 	nanoModel.scale(0.005f, 0.005f, 0.005f);
 	nanoModel.translate(-200.0f, 0.0f, 0.0f);
 	nanoModel.rotateY(90.0f);
+
+	std::string fieldPath("C:\\Users\\Alex Hu\\Documents\\Model\\Field\\field.obj");
+	std::string fieldTexture("C:\\Users\\Alex Hu\\Documents\\Model\\Field");
+	Model fieldModel = Importer::loadModel(fieldPath, fieldTexture);
+	fieldModel.setup();
+	fieldModel.scale(1.5f, 1.5f, 1.5f);
+	fieldModel.translate(0.0f, 0.0f, -0.4f);
+	fieldModel.rotateY(180.0f);
+	
 	/*
 	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
 	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
@@ -307,6 +316,9 @@ int main(int argc, char *argv[])
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	Camera camera(cameraLocation, glm::vec3(0.0f, 0.0f, -1.0f), cameraUp);
+	// translate upwards a little bit so that the scene is seen
+	camera.translateUp(0.5f);
+
 	glm::mat4 view = camera.getViewMatrix();
 	GLint uniView = glGetUniformLocation(shaderProgramId, "view");
 	glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(view));
@@ -730,6 +742,18 @@ int main(int argc, char *argv[])
 
 		nanoModel.draw(sampler, uniModel, glm::mat4(1.0f));
 
+		boneTransforms = fieldModel.getBoneTransforms(0, 0);
+
+		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		{
+			if (i < 100)
+			{
+				setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
+			}
+		}
+
+		fieldModel.draw(sampler, uniModel, glm::mat4(1.0f));
+
 		/*if (displayBobScene)
 		{
 		bobScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
@@ -768,7 +792,7 @@ int main(int argc, char *argv[])
 		//	frameCount = 0;
 		//}
 		//++frameCount;
-		sampleRect.draw(shapeUniColor);
+		//sampleRect.draw(shapeUniColor);
 
 		shaderProgram.use();
 

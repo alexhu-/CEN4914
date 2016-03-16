@@ -120,10 +120,36 @@
     <None Include="Models\Body_Mesh_Rigged.fbx">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Models\field.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Models\tree.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Models\red.tga">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Models\ac.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Models\grass_grass_0127_01_s.tga">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Models\screen.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Models\tr.PNG">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Models\field.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="Models\tree.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
   </ItemGroup>
 </Project>

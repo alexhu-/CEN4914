@@ -9,3 +9,6 @@ Model downloaded from: http://tf3dm.com/3d-model/low-poly-character-rigged-47686
 
 Model created by: TehJoran - http://www.blendswap.com/user/TehJoran
 Model: http://www.blendswap.com/blends/view/17561
+
+Texture for field:
+http://texturelib.com/texture/?path=/Textures/grass/grass/grass_grass_0127 by Dmitriy Chugai
