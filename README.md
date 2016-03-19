@@ -12,3 +12,8 @@ Model: http://www.blendswap.com/blends/view/17561
 
 Texture for field:
 http://texturelib.com/texture/?path=/Textures/grass/grass/grass_grass_0127 by Dmitriy Chugai
+
+Trees:
+From: http://www.blender-models.com/model-downloads/plants/id/tree/
+License: https://creativecommons.org/licenses/by-nc/3.0/us/
+Used in field.obj
