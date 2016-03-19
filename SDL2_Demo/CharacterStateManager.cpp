@@ -261,3 +261,11 @@ CharacterState CharacterStateManager::getState()
 {
 	return mState;
 }
+
+unsigned int CharacterStateManager::getJumpDuration()
+{
+	if (mState.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+	{
+		return mJumpTimer + mState.getStateTimer();
+	}
+}

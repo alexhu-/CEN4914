@@ -272,18 +272,21 @@ int main(int argc, char *argv[])
 	std::string nanotexture("Models");
 	Model nanoModel = Importer::loadModel(nanopath, nanotexture);
 	nanoModel.setup();
-	nanoModel.scale(0.005f, 0.005f, 0.005f);
+	/*nanoModel.scale(0.005f, 0.005f, 0.005f);
 	nanoModel.translate(-200.0f, 0.0f, 0.0f);
+	nanoModel.rotateY(90.0f);*/
+	nanoModel.scale(0.005f, 0.005f, 0.005f);
 	nanoModel.rotateY(90.0f);
+	nanoModel.translate(-50.0f, 0.0f, -200.0f);
 
 	std::string fieldPath("C:\\Users\\Alex Hu\\Documents\\Model\\Field\\field.obj");
 	std::string fieldTexture("C:\\Users\\Alex Hu\\Documents\\Model\\Field");
 	Model fieldModel = Importer::loadModel(fieldPath, fieldTexture);
 	fieldModel.setup();
-	fieldModel.scale(1.5f, 1.5f, 1.5f);
-	fieldModel.translate(0.0f, 0.0f, -0.4f);
+	fieldModel.scale(2.5f, 2.5f, 2.5f);
+	fieldModel.translate(0.0f, 0.0f, -1.0f);
 	fieldModel.rotateY(180.0f);
-	
+
 	/*
 	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
 	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
@@ -317,7 +320,8 @@ int main(int argc, char *argv[])
 
 	Camera camera(cameraLocation, glm::vec3(0.0f, 0.0f, -1.0f), cameraUp);
 	// translate upwards a little bit so that the scene is seen
-	camera.translateUp(0.5f);
+	camera.translateUp(1.0f);
+	camera.translateForward(-2.0f);
 
 	glm::mat4 view = camera.getViewMatrix();
 	GLint uniView = glGetUniformLocation(shaderProgramId, "view");
@@ -679,6 +683,49 @@ int main(int argc, char *argv[])
 		HorizontalDirection player1HD = player1State.getHorizontalDirection();
 		VerticalDirection player1VD = player1State.getVerticalDirection();
 		unsigned int player1Time = player1State.getStateTimer();
+
+		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_FORWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND  && player1State.getAction() == Action::ACTION_NONE)
+		{
+			nanoModel.translate(0.0f, 0.0f, 2.0f);
+		}
+		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_BACKWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND && player1State.getAction() == Action::ACTION_NONE)
+		{
+			nanoModel.translate(0.0f, 0.0f, -2.0f);
+		}
+		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_FORWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+		{
+			unsigned int jumpTime = fighterStateManager.getJumpDuration();
+			unsigned int jumpStartup = myModel.getTotalStartupFrames(MoveSet::JUMP);
+			unsigned int jumpActive = myModel.getTotalActiveFrames(MoveSet::JUMP);
+			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
+			{
+				float yinc = 2.0f - 2.0f * (float)(jumpTime-3) / 26.5f;
+				nanoModel.translate(0.0f, 16.0f * yinc, 6.0f);
+			}
+		}
+		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_BACKWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+		{
+			unsigned int jumpTime = fighterStateManager.getJumpDuration();
+			unsigned int jumpStartup = myModel.getTotalStartupFrames(MoveSet::JUMP);
+			unsigned int jumpActive = myModel.getTotalActiveFrames(MoveSet::JUMP);
+			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
+			{
+				float yinc = 2.0f - 2.0f * (float)(jumpTime - 3) / 26.5f;
+				nanoModel.translate(0.0f, 16.0f * yinc, -6.0f);
+			}
+		}
+		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_NEUTRAL && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+		{
+			unsigned int jumpTime = fighterStateManager.getJumpDuration();
+			unsigned int jumpStartup = myModel.getTotalStartupFrames(MoveSet::JUMP);
+			unsigned int jumpActive = myModel.getTotalActiveFrames(MoveSet::JUMP);
+			float halfActive = (float)jumpActive / 2.0f;
+			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
+			{
+				float yinc = 2.0f - 2.0f * (float)(jumpTime - jumpStartup) / halfActive;
+				nanoModel.translate(0.0f, 16.0f * yinc, 0.0f);
+			}
+		}
 
 		if (player1Time == 1)
 		{

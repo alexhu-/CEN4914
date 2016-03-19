@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="CharacterData.h" />
     <ClInclude Include="CharacterState.h" />
     <ClInclude Include="CharacterStateManager.h" />
@@ -177,10 +178,6 @@
     <Image Include="Models\red.tga" />
     <Image Include="Models\screen.PNG" />
     <Image Include="Models\tr.PNG" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="Models\field.obj" />
-    <Object Include="Models\tree.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -23,6 +23,7 @@ public:
 	void setGameInputs(unsigned int inputs);
 	void update();
 	CharacterState getState();
+	unsigned int getJumpDuration();
 
 private:
 	void updateJump(bool isJumping, unsigned int stateTime);

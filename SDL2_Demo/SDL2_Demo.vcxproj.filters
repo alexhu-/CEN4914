@@ -115,6 +115,9 @@
     <ClInclude Include="CharacterData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Character.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Models\Body_Mesh_Rigged.fbx">
@@ -143,13 +146,5 @@
     <Image Include="Models\tr.PNG">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="Models\field.obj">
-      <Filter>Resource Files</Filter>
-    </Object>
-    <Object Include="Models\tree.obj">
-      <Filter>Resource Files</Filter>
-    </Object>
   </ItemGroup>
 </Project>
