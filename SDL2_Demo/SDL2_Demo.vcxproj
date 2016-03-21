@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="PlayerCharacter.cpp" />
     <ClCompile Include="CharacterData.cpp" />
     <ClCompile Include="CharacterState.cpp" />
     <ClCompile Include="CharacterStateManager.cpp" />
@@ -154,7 +155,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Character.h" />
+    <ClInclude Include="PlayerCharacter.h" />
     <ClInclude Include="CharacterData.h" />
     <ClInclude Include="CharacterState.h" />
     <ClInclude Include="CharacterStateManager.h" />

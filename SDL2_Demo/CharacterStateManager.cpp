@@ -269,3 +269,54 @@ unsigned int CharacterStateManager::getJumpDuration()
 		return mJumpTimer + mState.getStateTimer();
 	}
 }
+
+unsigned int CharacterStateManager::getStateTime()
+{
+	return mState.getStateTimer();
+}
+
+MoveSet CharacterStateManager::getMoveSet()
+{
+	Action action = mState.getAction();
+	HorizontalDirection hdir = mState.getHorizontalDirection();
+	VerticalDirection vdir = mState.getVerticalDirection();
+	MoveSet move = MoveSet::IDLE;
+
+	unsigned int controllerDirection = mState.getVerticalDirection() * 4;
+
+	if (action == Action::ACTION_PUNCH1 ||
+		action == Action::ACTION_PUNCH2 ||
+		action == Action::ACTION_KICK1 ||
+		action == Action::ACTION_KICK2)
+	{
+		unsigned int attack = action - 4 + controllerDirection;
+		move = (MoveSet) attack;
+	}
+	if (hdir == HorizontalDirection::HDIRECTION_FORWARD && vdir == VerticalDirection::VDIRECTION_STAND && action == Action::ACTION_NONE)
+	{
+		move = MoveSet::WALK_FORWARD;
+	}
+	if (hdir == HorizontalDirection::HDIRECTION_BACKWARD && vdir == VerticalDirection::VDIRECTION_STAND && action == Action::ACTION_NONE)
+	{
+		move = MoveSet::WALK_BACKWARD;
+	}
+	if (vdir == VerticalDirection::VDIRECTION_JUMP && action == Action::ACTION_NONE)
+	{
+		move = MoveSet::JUMP;
+	}
+	if (vdir == VerticalDirection::VDIRECTION_CROUCH && action == Action::ACTION_NONE)
+	{
+		move = MoveSet::CROUCH;
+	}
+	if (vdir == VerticalDirection::VDIRECTION_STAND && hdir == HorizontalDirection::HDIRECTION_NEUTRAL && action == Action::ACTION_NONE)
+	{
+		move = MoveSet::IDLE;
+	}
+
+	return move;
+}
+
+bool CharacterStateManager::shouldChangeAnimation()
+{
+	return (mState.getStateTimer() == 1);
+}

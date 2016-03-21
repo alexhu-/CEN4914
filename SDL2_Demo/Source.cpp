@@ -24,6 +24,7 @@
 #include "CharacterStateManager.h"
 #include "Importer.h"
 #include "Model.h"
+#include "PlayerCharacter.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
 #include "UIRectangle.h"
@@ -272,12 +273,17 @@ int main(int argc, char *argv[])
 	std::string nanotexture("Models");
 	Model nanoModel = Importer::loadModel(nanopath, nanotexture);
 	nanoModel.setup();
-	/*nanoModel.scale(0.005f, 0.005f, 0.005f);
-	nanoModel.translate(-200.0f, 0.0f, 0.0f);
-	nanoModel.rotateY(90.0f);*/
 	nanoModel.scale(0.005f, 0.005f, 0.005f);
-	nanoModel.rotateY(90.0f);
-	nanoModel.translate(-50.0f, 0.0f, -200.0f);
+	nanoModel.rotateY(-90.0f);
+	nanoModel.translateInWorld(1.25f, 0.0f, 0.0f);
+
+	MyAnimatedMeshClass characterOneData;
+	Model characterOneModel = Importer::loadModel(nanopath, nanotexture);
+	PlayerCharacter characterOne((CharacterData*)(&characterOneData), &characterOneModel);
+	characterOne.setup();
+	characterOneModel.scale(0.005f, 0.005f, 0.005f);
+	characterOneModel.rotateY(90.0f);
+	characterOne.translateCharacter(-1.25f, 0.0f, 0.0f);
 
 	std::string fieldPath("C:\\Users\\Alex Hu\\Documents\\Model\\Field\\field.obj");
 	std::string fieldTexture("C:\\Users\\Alex Hu\\Documents\\Model\\Field");
@@ -321,7 +327,6 @@ int main(int argc, char *argv[])
 	Camera camera(cameraLocation, glm::vec3(0.0f, 0.0f, -1.0f), cameraUp);
 	// translate upwards a little bit so that the scene is seen
 	camera.translateUp(1.0f);
-	camera.translateForward(-2.0f);
 
 	glm::mat4 view = camera.getViewMatrix();
 	GLint uniView = glGetUniformLocation(shaderProgramId, "view");
@@ -381,6 +386,7 @@ int main(int argc, char *argv[])
 	int stateDuration = 0;
 	int actionDuration = 0;
 	unsigned int controllerInputs = 0;
+	unsigned int controller2Inputs = 0;
 
 	//CharacterState fighterState = CharacterState();
 	CharacterStateManager fighterStateManager((CharacterData*)(&myModel));
@@ -389,6 +395,7 @@ int main(int argc, char *argv[])
 	float timeInMs = 0.0;
 
 	int controllerDirection = 0;
+	int controller2Direction = 0;
 
 	unsigned int frameCount = 0;
 	bool rectReverse = true;
@@ -440,23 +447,99 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_w))
 			{
-				camera.rotateUp(6.0f);
+				//camera.rotateUp(6.0f);
+				controller2Inputs |= GameInput::INPUT_UP;
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_s))
 			{
-				camera.rotateUp(-6.0f);
+				//camera.rotateUp(-6.0f);
+				controller2Inputs |= GameInput::INPUT_DOWN;
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_a))
 			{
-				camera.rotateRight(3.0f);
+				//camera.rotateRight(3.0f);
+				controller2Inputs |= GameInput::INPUT_LEFT;
 			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_d))
 			{
-				camera.rotateRight(-3.0f);
+				//camera.rotateRight(-3.0f);
+				controller2Inputs |= GameInput::INPUT_RIGHT;
 			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_w))
+			{
+				controller2Inputs &= ~GameInput::INPUT_UP;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_s))
+			{
+				controller2Inputs &= ~GameInput::INPUT_DOWN;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_a))
+			{
+				controller2Inputs &= ~GameInput::INPUT_LEFT;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_d))
+			{
+				controller2Inputs &= ~GameInput::INPUT_RIGHT;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_e))
+			{
+				// punch1
+				controller2Inputs |= GameInput::INPUT_PUNCH1;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_r))
+			{
+				// punch2
+				controller2Inputs |= GameInput::INPUT_PUNCH2;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_t))
+			{
+				// kick1
+				controller2Inputs |= GameInput::INPUT_KICK1;
+			}
+
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_f))
+			{
+				// kick2
+				controller2Inputs |= GameInput::INPUT_KICK2;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_e))
+			{
+				// punch1
+				controller2Inputs &= ~GameInput::INPUT_PUNCH1;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_r))
+			{
+				// punch2
+				controller2Inputs &= ~GameInput::INPUT_PUNCH2;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_t))
+			{
+				// kick1
+				controller2Inputs &= ~GameInput::INPUT_KICK1;
+			}
+
+			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_f))
+			{
+				// kick2
+				controller2Inputs &= ~GameInput::INPUT_KICK2;
+			}
+
+			// end of character one stuff ===================================================
+
+			// other stuff
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_1))
 			{
@@ -530,9 +613,6 @@ int main(int argc, char *argv[])
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_p))
 			{
 				// kick1
-				//currentFrame = 2 + controllerDirection;
-				//myModel.setAnimationIndex(currentFrame);
-				//actionDuration = myModel.getTotalFrames(currentFrame);
 				controllerInputs |= GameInput::INPUT_KICK1;
 			}
 
@@ -672,6 +752,14 @@ int main(int argc, char *argv[])
 			}
 			}*/
 
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_m))
+			{
+				std::cout << "x : " << characterOne.getX();
+				std::cout << ", y : " << characterOne.getY();
+				std::cout << ", z : " << characterOne.getZ() << std::endl;
+				std::cout << ", camera z: " << camera.getPosition().z << std::endl;
+			}
+
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
 
@@ -686,11 +774,11 @@ int main(int argc, char *argv[])
 
 		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_FORWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND  && player1State.getAction() == Action::ACTION_NONE)
 		{
-			nanoModel.translate(0.0f, 0.0f, 2.0f);
+			nanoModel.translateInWorld(0.02f, 0.0f, 0.0f);
 		}
 		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_BACKWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND && player1State.getAction() == Action::ACTION_NONE)
 		{
-			nanoModel.translate(0.0f, 0.0f, -2.0f);
+			nanoModel.translateInWorld(-0.015f, 0.0f, 0.0f);
 		}
 		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_FORWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
 		{
@@ -700,7 +788,7 @@ int main(int argc, char *argv[])
 			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
 			{
 				float yinc = 2.0f - 2.0f * (float)(jumpTime-3) / 26.5f;
-				nanoModel.translate(0.0f, 16.0f * yinc, 6.0f);
+				nanoModel.translateInWorld(0.04f, 0.08f * yinc, 0.0f);
 			}
 		}
 		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_BACKWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
@@ -711,7 +799,7 @@ int main(int argc, char *argv[])
 			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
 			{
 				float yinc = 2.0f - 2.0f * (float)(jumpTime - 3) / 26.5f;
-				nanoModel.translate(0.0f, 16.0f * yinc, -6.0f);
+				nanoModel.translateInWorld(-0.04f, 0.08f * yinc, 0.0f);
 			}
 		}
 		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_NEUTRAL && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
@@ -723,7 +811,7 @@ int main(int argc, char *argv[])
 			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
 			{
 				float yinc = 2.0f - 2.0f * (float)(jumpTime - jumpStartup) / halfActive;
-				nanoModel.translate(0.0f, 16.0f * yinc, 0.0f);
+				nanoModel.translateInWorld(0.0f, 0.08f * yinc, 0.0f);
 			}
 		}
 
@@ -764,6 +852,42 @@ int main(int argc, char *argv[])
 		//controllerInputs = GameInput::INPUT_NONE;
 		fighterStateManager.setGameInputs(GameInput::INPUT_NONE);
 
+		characterOne.setInputs(controller2Inputs);
+		characterOne.updateState();
+		characterOne.updatePosition(0.02f, 0.015f, 0.08f, 0.04f);
+		if (characterOne.shouldChangeAnimation())
+		{
+			characterOneData.setAnimationIndex(characterOne.getMoveSet());
+		}
+		characterOne.setInputs(GameInput::INPUT_NONE);
+
+		glm::vec3 cameraPosition = camera.getPosition();
+		if ((characterOne.getX() > 3.0f && cameraPosition.z - 0.5f < characterOne.getX()) ||
+			(characterOne.getY() > 0.25f && cameraPosition.z < characterOne.getY() + 2.75f))
+		{
+			camera.translateForward(-0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+		else if (characterOne.getX() < -3.0f && cameraPosition.z - 0.5f < -1.0f*characterOne.getX())
+		{
+			camera.translateForward(-0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+		else if (cameraPosition.z > 3.0f &&
+			(characterOne.getX() < 0.0f) &&
+			(characterOne.getX()  - 1.0f > -1.0f*cameraPosition.z))
+		{
+			camera.translateForward(0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+		else if (cameraPosition.z > 3.0f &&
+			(characterOne.getX() >= 0.0f) &&
+			(characterOne.getX() + 1.0f < cameraPosition.z))
+		{
+			camera.translateForward(0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+
 		// Clear the screen to black
 		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -789,13 +913,25 @@ int main(int argc, char *argv[])
 
 		nanoModel.draw(sampler, uniModel, glm::mat4(1.0f));
 
-		boneTransforms = fieldModel.getBoneTransforms(0, 0);
+		std::vector<glm::mat4> boneTransforms2 = characterOne.getBoneTransforms(characterOneData.getAnimationTime((float)timeInMs));
 
-		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		for (unsigned int i = 0; i < boneTransforms2.size(); ++i)
 		{
 			if (i < 100)
 			{
-				setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
+				setBoneTransforms(shaderProgramId, i, boneTransforms2[i]);
+			}
+		}
+
+		characterOne.draw(sampler, uniModel);
+
+		std::vector<glm::mat4> boneTransformsField = fieldModel.getBoneTransforms(0, 0);
+
+		for (unsigned int i = 0; i < boneTransformsField.size(); ++i)
+		{
+			if (i < 100)
+			{
+				setBoneTransforms(shaderProgramId, i, boneTransformsField[i]);
 			}
 		}
 
@@ -882,6 +1018,7 @@ int main(int argc, char *argv[])
 	//bobModel.clearGLBuffers();
 	//girlModel.clearGLBuffers();
 	nanoModel.clearGLBuffers();
+	characterOne.cleanup();
 
 	SDL_GL_DeleteContext(context);
 

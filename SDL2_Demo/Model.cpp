@@ -13,7 +13,8 @@ Model::Model(
 	mBones(bones),
 	mMeshes(meshes),
 	mGlobalInverseTransform(globalInverseTransform),
-	mModelMatrix(1.0f)
+	mModelMatrix(1.0f),
+	mWorldModelMatrix(1.0f)
 {
 	mBoneCount = mBones.size();
 }
@@ -28,6 +29,7 @@ Model::Model(const Model& rhs)
 	this->mMeshes = rhs.mMeshes;
 	this->mGlobalInverseTransform = rhs.mGlobalInverseTransform;
 	this->mModelMatrix = rhs.mModelMatrix;
+	this->mWorldModelMatrix = rhs.mWorldModelMatrix;
 
 	// now copy node tree
 	copyNodeTree(*this->mRoot, *rhs.mRoot);
@@ -82,6 +84,7 @@ Model& Model::operator=(const Model& rhs)
 		this->mMeshes = rhs.mMeshes;
 		this->mGlobalInverseTransform = rhs.mGlobalInverseTransform;
 		this->mModelMatrix = rhs.mModelMatrix;
+		this->mWorldModelMatrix = rhs.mWorldModelMatrix;
 
 		// now copy node tree
 		copyNodeTree(*this->mRoot, *rhs.mRoot);
@@ -273,6 +276,11 @@ void Model::rotateZ(float degrees)
 	mModelMatrix = glm::rotate(mModelMatrix, glm::radians(degrees), glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
+void Model::translateInWorld(float x, float y, float z)
+{
+	mWorldModelMatrix = glm::translate(mWorldModelMatrix, glm::vec3(x, y, z));
+}
+
 glm::mat4 Model::getModelMatrix()
 {
 	/*glm::mat4 result(1.0f);
@@ -284,9 +292,15 @@ glm::mat4 Model::getModelMatrix()
 	return mModelMatrix;
 }
 
+glm::mat4 Model::getWorldModelMatrix()
+{
+	return mWorldModelMatrix;
+}
+
 void Model::draw(GLint sampler, GLint modelUniform, glm::mat4 originalModel)
 {
-	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(this->getModelMatrix()));
+	glm::mat4 modelMatrix = this->getWorldModelMatrix() * this->getModelMatrix();
+	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
 	this->draw(sampler);
 	glUniformMatrix4fv(modelUniform, 1, GL_FALSE, glm::value_ptr(originalModel));
 }

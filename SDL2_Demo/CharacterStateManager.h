@@ -24,6 +24,9 @@ public:
 	void update();
 	CharacterState getState();
 	unsigned int getJumpDuration();
+	MoveSet getMoveSet();
+	unsigned int getStateTime();
+	bool shouldChangeAnimation();
 
 private:
 	void updateJump(bool isJumping, unsigned int stateTime);

@@ -13,7 +13,7 @@ public:
 	void translateRight(float distance);
 	void translateForward(float distance);
 	glm::mat4 getViewMatrix();
-
+	glm::vec3 getPosition();
 
 private:
 	// The position of the camera

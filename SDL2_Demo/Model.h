@@ -44,8 +44,11 @@ public:
 	void rotateY(float degrees);
 	void rotateZ(float degrees);
 
+	void translateInWorld(float x, float y, float z);
+
 	// Functions to get the model matrix
 	glm::mat4 getModelMatrix();
+	glm::mat4 getWorldModelMatrix();
 
 	void printAnimationData();
 
@@ -63,6 +66,7 @@ private:
 
 	// the model's model matrix - a combination of scaling, rotation, and translation
 	glm::mat4 mModelMatrix;
+	glm::mat4 mWorldModelMatrix;
 
 	unsigned int findTimeIndex(float animationTime, const float* times, unsigned int timeCount);
 	glm::vec3 getInterpolatedVector(float animationTime, const glm::vec3* vectors, const float* times, unsigned int size);
