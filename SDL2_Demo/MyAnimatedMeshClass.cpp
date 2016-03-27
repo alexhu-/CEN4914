@@ -339,22 +339,33 @@ void MyAnimatedMeshClass::knockdownSetup()
 	// stand knockdown
 	pModelAction->start = 157;
 	pModelAction->active = 162;
-	pModelAction->recovery = 165;
+	pModelAction->recovery = 162;
 	pModelAction->end = 168;
-	pModelAction->totalStartup = 12;
-	pModelAction->totalActive = 48;
-	pModelAction->totalRecovery = 12;
+	pModelAction->totalStartup = 4;
+	pModelAction->totalActive = 56;
+	pModelAction->totalRecovery = 4;
 
 	pModelAction = &mActions[23];
 
 	// crouch knockdown
 	pModelAction->start = 169;
 	pModelAction->active = 174;
-	pModelAction->recovery = 177;
+	pModelAction->recovery = 174;
 	pModelAction->end = 180;
-	pModelAction->totalStartup = 12;
-	pModelAction->totalActive = 48;
-	pModelAction->totalRecovery = 12;
+	pModelAction->totalStartup = mActions[22].totalStartup;
+	pModelAction->totalActive = mActions[22].totalActive;
+	pModelAction->totalRecovery = mActions[22].totalStartup;
+
+	pModelAction = &mActions[24];
+
+	// jump knockdown
+	pModelAction->start = 162;
+	pModelAction->active = 163;
+	pModelAction->recovery = 163;
+	pModelAction->end = 168;
+	pModelAction->totalStartup = 1;
+	pModelAction->totalActive = mActions[22].totalActive;
+	pModelAction->totalRecovery = mActions[22].totalStartup;
 }
 
 unsigned int MyAnimatedMeshClass::getTotalStartupFrames(unsigned int index)

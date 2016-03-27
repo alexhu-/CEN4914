@@ -16,6 +16,12 @@ enum GameInput : unsigned int
 	INPUT_KICK2 = 0x0080
 };
 
+enum GameEvent
+{
+	EVENT_NONE,
+	EVENT_HIT
+};
+
 class CharacterStateManager
 {
 public:
@@ -27,6 +33,10 @@ public:
 	MoveSet getMoveSet();
 	unsigned int getStateTime();
 	bool shouldChangeAnimation();
+	void setGameEvent(GameEvent gameEvent);
+	GameEvent getGameEvent();
+	void setHitTimer(unsigned int hitstun);
+	unsigned int getHitTimer();
 
 private:
 	void updateJump(bool isJumping, unsigned int stateTime);
@@ -34,10 +44,15 @@ private:
 	void setAttackAction(Action action);
 	void updateAttackStatus(unsigned int attackIndex);
 	void updateDirection(bool isDoingAction, bool isJumping);
+	void updateGameEvent(VerticalDirection verticalState, unsigned int stateTime);
+	void updateAction(bool canAttack, VerticalDirection verticalState, Action action, unsigned int stateTime);
 
 	CharacterState mState;
 	CharacterData* mData;
 
 	unsigned int mInputs;
 	unsigned int mJumpTimer;
+	unsigned int mHitTimer;
+	unsigned int mJumpAndHit = 0;
+	GameEvent mGameEvent;
 };

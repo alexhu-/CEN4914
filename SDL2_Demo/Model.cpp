@@ -148,9 +148,20 @@ void Model::calculateFinalTransforms(float animationTime, glm::mat4 parentTransf
 		AnimationData animationData = node->animations[animationIndex];
 
 		// interpolate for all these matrices
+		/*
 		glm::vec3 scaling = getInterpolatedVector(animationTime, animationData.scalingValues, animationData.scalingTimes, animationData.scalingCount);
 		glm::mat4 scalingTransform(1.0f);
 		scalingTransform= glm::scale(scalingTransform, scaling);
+		if (scaling.x > 1.01f || scaling.y > 1.01f || scaling.z > 1.01f)
+		{
+			std::cout << node->name << " : " << scaling.x << ", " << scaling.y << ", " << scaling.z << std::endl;
+		}
+		*/
+		glm::mat4 scalingTransform(1.0f);
+		if (strcmp(node->name.c_str(), "Armature") == 0 || strcmp(node->name.c_str(), "Lamp") == 0 || strcmp(node->name.c_str(), "Low_Poly_Characte.000_Mesh.001") == 0)
+		{
+			scalingTransform = glm::scale(scalingTransform, glm::vec3(100.0f, 100.0f, 100.0f));
+		}
 		
 		glm::quat rotation = getInterpolatedRotation(animationTime, animationData.quaternionValues, animationData.quaternionTimes, animationData.quaternionCount);
 		glm::mat4 rotationTransform(rotation);
@@ -159,7 +170,7 @@ void Model::calculateFinalTransforms(float animationTime, glm::mat4 parentTransf
 		glm::mat4 translationTransform(1.0f);
 		translationTransform = glm::translate(translationTransform, translation);
 
-		nodeTransform = translationTransform * rotationTransform * scalingTransform;
+		nodeTransform = translationTransform * rotationTransform *scalingTransform;
 	}
 
 	glm::mat4 globalTransform = parentTransform * nodeTransform;

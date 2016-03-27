@@ -72,11 +72,11 @@ private:
 	void movementSetup(); // index 12 to 16
 	void blockSetup(); // index 17 to 18
 	void hitSetup(); // index 19 to 21
-	void knockdownSetup(); // index 22 to 23
+	void knockdownSetup(); // index 22 to 24
 
 	ModelAction mActions[24];
 	
-	const unsigned int mAnimationCount = 24; // 27 no fire ball, default, and throw whiff
+	const unsigned int mAnimationCount = 25; // 28 no fire ball, default, and throw whiff
 	unsigned int mAnimationIndex;
 	double mInternalTimeMS;
 	double mPrevTimeMS;

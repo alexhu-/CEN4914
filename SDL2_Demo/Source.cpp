@@ -271,11 +271,14 @@ int main(int argc, char *argv[])
 	std::string nanopath("Models\\Body_Mesh_Rigged.fbx");
 	//std::string nanotexture("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file2");
 	std::string nanotexture("Models");
-	Model nanoModel = Importer::loadModel(nanopath, nanotexture);
-	nanoModel.setup();
-	nanoModel.scale(0.005f, 0.005f, 0.005f);
-	nanoModel.rotateY(-90.0f);
-	nanoModel.translateInWorld(1.25f, 0.0f, 0.0f);
+
+	MyAnimatedMeshClass characterTwoData;
+	Model characterTwoModel = Importer::loadModel(nanopath, nanotexture);
+	PlayerCharacter characterTwo((CharacterData*)(&characterTwoData), &characterTwoModel);
+	characterTwo.setup();
+	characterTwoModel.scale(0.005f, 0.005f, 0.005f);
+	characterTwoModel.rotateY(-90.0f);
+	characterTwo.translateCharacter(1.25f, 0.0f, 0.0f);
 
 	MyAnimatedMeshClass characterOneData;
 	Model characterOneModel = Importer::loadModel(nanopath, nanotexture);
@@ -321,7 +324,8 @@ int main(int argc, char *argv[])
 	glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 	// make our camera matrix
-	glm::vec3 cameraLocation = glm::vec3(0.0f, 0.0f, 3.0f);
+	float cameraStartingLocation = 4.0f;
+	glm::vec3 cameraLocation = glm::vec3(0.0f, 0.0f, cameraStartingLocation);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	Camera camera(cameraLocation, glm::vec3(0.0f, 0.0f, -1.0f), cameraUp);
@@ -360,9 +364,6 @@ int main(int argc, char *argv[])
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//--------------------------------------------------------------------------------------------------------
 
-	MyAnimatedMeshClass myModel;
-	myModel.setAnimationIndex(MoveSet::IDLE);
-
 	/*Scene bobScene;
 	bobScene.addModel(&bobModel);
 	//bobScene.addModel(&nanoModel);
@@ -371,7 +372,6 @@ int main(int argc, char *argv[])
 	girlScene.addModel(&girlModel);
 	//girlScene.addModel(&nanoModel);
 	*/
-	nanoModel.printAnimationData();
 
 	bool displayBobScene = true;
 	bool displayGirlScene = true;
@@ -387,9 +387,6 @@ int main(int argc, char *argv[])
 	int actionDuration = 0;
 	unsigned int controllerInputs = 0;
 	unsigned int controller2Inputs = 0;
-
-	//CharacterState fighterState = CharacterState();
-	CharacterStateManager fighterStateManager((CharacterData*)(&myModel));
 
 	unsigned int currentFrame = 0;
 	float timeInMs = 0.0;
@@ -754,103 +751,21 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_m))
 			{
-				std::cout << "x : " << characterOne.getX();
-				std::cout << ", y : " << characterOne.getY();
-				std::cout << ", z : " << characterOne.getZ() << std::endl;
-				std::cout << ", camera z: " << camera.getPosition().z << std::endl;
+				characterOne.setEventHit(17, 60);
 			}
 
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
 
-		// update character moves
-		fighterStateManager.setGameInputs(controllerInputs);
-		fighterStateManager.update();
-		CharacterState player1State = fighterStateManager.getState();
-		Action player1Action = player1State.getAction();
-		HorizontalDirection player1HD = player1State.getHorizontalDirection();
-		VerticalDirection player1VD = player1State.getVerticalDirection();
-		unsigned int player1Time = player1State.getStateTimer();
 
-		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_FORWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND  && player1State.getAction() == Action::ACTION_NONE)
+		characterTwo.setInputs(controllerInputs);
+		characterTwo.updateState();
+		characterTwo.updatePosition(0.02f, 0.015f, 0.08f, 0.04f);
+		if (characterTwo.shouldChangeAnimation())
 		{
-			nanoModel.translateInWorld(0.02f, 0.0f, 0.0f);
+			characterTwoData.setAnimationIndex(characterTwo.getMoveSet());
 		}
-		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_BACKWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND && player1State.getAction() == Action::ACTION_NONE)
-		{
-			nanoModel.translateInWorld(-0.015f, 0.0f, 0.0f);
-		}
-		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_FORWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
-		{
-			unsigned int jumpTime = fighterStateManager.getJumpDuration();
-			unsigned int jumpStartup = myModel.getTotalStartupFrames(MoveSet::JUMP);
-			unsigned int jumpActive = myModel.getTotalActiveFrames(MoveSet::JUMP);
-			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
-			{
-				float yinc = 2.0f - 2.0f * (float)(jumpTime-3) / 26.5f;
-				nanoModel.translateInWorld(0.04f, 0.08f * yinc, 0.0f);
-			}
-		}
-		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_BACKWARD && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
-		{
-			unsigned int jumpTime = fighterStateManager.getJumpDuration();
-			unsigned int jumpStartup = myModel.getTotalStartupFrames(MoveSet::JUMP);
-			unsigned int jumpActive = myModel.getTotalActiveFrames(MoveSet::JUMP);
-			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
-			{
-				float yinc = 2.0f - 2.0f * (float)(jumpTime - 3) / 26.5f;
-				nanoModel.translateInWorld(-0.04f, 0.08f * yinc, 0.0f);
-			}
-		}
-		if (player1State.getHorizontalDirection() == HorizontalDirection::HDIRECTION_NEUTRAL && player1State.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
-		{
-			unsigned int jumpTime = fighterStateManager.getJumpDuration();
-			unsigned int jumpStartup = myModel.getTotalStartupFrames(MoveSet::JUMP);
-			unsigned int jumpActive = myModel.getTotalActiveFrames(MoveSet::JUMP);
-			float halfActive = (float)jumpActive / 2.0f;
-			if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
-			{
-				float yinc = 2.0f - 2.0f * (float)(jumpTime - jumpStartup) / halfActive;
-				nanoModel.translateInWorld(0.0f, 0.08f * yinc, 0.0f);
-			}
-		}
-
-		if (player1Time == 1)
-		{
-			controllerDirection = player1VD * 4;
-
-			if (player1Action == Action::ACTION_PUNCH1 ||
-				player1Action == Action::ACTION_PUNCH2 ||
-				player1Action == Action::ACTION_KICK1 ||
-				player1Action == Action::ACTION_KICK2)
-			{
-				currentFrame = player1Action - 4 + controllerDirection;
-				myModel.setAnimationIndex(currentFrame);
-			}
-			if (player1HD == HorizontalDirection::HDIRECTION_FORWARD && player1VD == VerticalDirection::VDIRECTION_STAND && player1Action == Action::ACTION_NONE)
-			{
-				myModel.setAnimationIndex(MoveSet::WALK_FORWARD);
-			}
-			if (player1HD == HorizontalDirection::HDIRECTION_BACKWARD && player1VD == VerticalDirection::VDIRECTION_STAND && player1Action == Action::ACTION_NONE)
-			{
-				myModel.setAnimationIndex(MoveSet::WALK_BACKWARD);
-			}
-			if (player1VD == VerticalDirection::VDIRECTION_JUMP && player1Action == Action::ACTION_NONE)
-			{
-				myModel.setAnimationIndex(MoveSet::JUMP);
-			}
-			if (player1VD == VerticalDirection::VDIRECTION_CROUCH && player1Action == Action::ACTION_NONE)
-			{
-				myModel.setAnimationIndex(MoveSet::CROUCH);
-			}
-			if (player1VD == VerticalDirection::VDIRECTION_STAND && player1HD == HorizontalDirection::HDIRECTION_NEUTRAL && player1Action == Action::ACTION_NONE)
-			{
-				myModel.setAnimationIndex(MoveSet::IDLE);
-			}
-		}
-
-		//controllerInputs = GameInput::INPUT_NONE;
-		fighterStateManager.setGameInputs(GameInput::INPUT_NONE);
+		characterTwo.setInputs(GameInput::INPUT_NONE);
 
 		characterOne.setInputs(controller2Inputs);
 		characterOne.updateState();
@@ -862,25 +777,49 @@ int main(int argc, char *argv[])
 		characterOne.setInputs(GameInput::INPUT_NONE);
 
 		glm::vec3 cameraPosition = camera.getPosition();
-		if ((characterOne.getX() > 3.0f && cameraPosition.z - 0.5f < characterOne.getX()) ||
-			(characterOne.getY() > 0.25f && cameraPosition.z < characterOne.getY() + 2.75f))
+		if (characterTwo.getX() > cameraStartingLocation && cameraPosition.z - 0.5f < characterTwo.getX())
 		{
 			camera.translateForward(-0.05f);
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
-		else if (characterOne.getX() < -3.0f && cameraPosition.z - 0.5f < -1.0f*characterOne.getX())
+		else if (characterTwo.getX() < -cameraStartingLocation && cameraPosition.z - 0.5f < -1.0f*characterTwo.getX())
 		{
 			camera.translateForward(-0.05f);
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
-		else if (cameraPosition.z > 3.0f &&
+		else if (cameraPosition.z > cameraStartingLocation &&
+			(characterTwo.getX() < 0.0f) &&
+			(characterTwo.getX() - 1.0f > -1.0f*cameraPosition.z))
+		{
+			camera.translateForward(0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+		else if (cameraPosition.z > cameraStartingLocation &&
+			(characterTwo.getX() >= 0.0f) &&
+			(characterTwo.getX() + 1.0f < cameraPosition.z))
+		{
+			camera.translateForward(0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+
+		if (characterOne.getX() > cameraStartingLocation && cameraPosition.z - 0.5f < characterOne.getX())
+		{
+			camera.translateForward(-0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+		else if (characterOne.getX() < -cameraStartingLocation && cameraPosition.z - 0.5f < -1.0f*characterOne.getX())
+		{
+			camera.translateForward(-0.05f);
+			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+		}
+		else if (cameraPosition.z > cameraStartingLocation &&
 			(characterOne.getX() < 0.0f) &&
 			(characterOne.getX()  - 1.0f > -1.0f*cameraPosition.z))
 		{
 			camera.translateForward(0.05f);
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
-		else if (cameraPosition.z > 3.0f &&
+		else if (cameraPosition.z > cameraStartingLocation &&
 			(characterOne.getX() >= 0.0f) &&
 			(characterOne.getX() + 1.0f < cameraPosition.z))
 		{
@@ -901,7 +840,7 @@ int main(int argc, char *argv[])
 
 		unsigned int runningTime = SDL_GetTicks() - startTime;
 		timeInMs = 16.66667f;
-		std::vector<glm::mat4> boneTransforms = nanoModel.getBoneTransforms(myModel.getAnimationTime((float)timeInMs), 0);
+		std::vector<glm::mat4> boneTransforms = characterTwo.getBoneTransforms(characterTwoData.getAnimationTime((float)timeInMs));
 
 		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
 		{
@@ -911,7 +850,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		nanoModel.draw(sampler, uniModel, glm::mat4(1.0f));
+		characterTwo.draw(sampler, uniModel);
 
 		std::vector<glm::mat4> boneTransforms2 = characterOne.getBoneTransforms(characterOneData.getAnimationTime((float)timeInMs));
 
@@ -1017,7 +956,8 @@ int main(int argc, char *argv[])
 
 	//bobModel.clearGLBuffers();
 	//girlModel.clearGLBuffers();
-	nanoModel.clearGLBuffers();
+	//nanoModel.clearGLBuffers();
+	characterTwo.cleanup();
 	characterOne.cleanup();
 
 	SDL_GL_DeleteContext(context);

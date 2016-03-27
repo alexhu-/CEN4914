@@ -123,3 +123,16 @@ bool PlayerCharacter::shouldChangeAnimation()
 {
 	return mStateManager.shouldChangeAnimation();
 }
+
+void PlayerCharacter::setEventHit(unsigned int hitstun, unsigned int jumphitstun)
+{
+	mStateManager.setGameEvent(GameEvent::EVENT_HIT);
+	if (mStateManager.getState().getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+	{
+		mStateManager.setHitTimer(jumphitstun);
+	}
+	else
+	{
+		mStateManager.setHitTimer(hitstun);
+	}
+}
