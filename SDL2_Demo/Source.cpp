@@ -751,7 +751,11 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_m))
 			{
-				characterOne.setEventHit(17, 60);
+				characterOne.setEventHit(17, 60, 10);
+			}
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_n))
+			{
+				characterOne.setEventKnockdown();
 			}
 
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
@@ -787,7 +791,7 @@ int main(int argc, char *argv[])
 			camera.translateForward(-0.05f);
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
-		else if (cameraPosition.z > cameraStartingLocation &&
+		/*else if (cameraPosition.z > cameraStartingLocation &&
 			(characterTwo.getX() < 0.0f) &&
 			(characterTwo.getX() - 1.0f > -1.0f*cameraPosition.z))
 		{
@@ -800,7 +804,7 @@ int main(int argc, char *argv[])
 		{
 			camera.translateForward(0.05f);
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		}
+		}*/
 
 		if (characterOne.getX() > cameraStartingLocation && cameraPosition.z - 0.5f < characterOne.getX())
 		{
@@ -812,7 +816,7 @@ int main(int argc, char *argv[])
 			camera.translateForward(-0.05f);
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
-		else if (cameraPosition.z > cameraStartingLocation &&
+		/*else if (cameraPosition.z > cameraStartingLocation &&
 			(characterOne.getX() < 0.0f) &&
 			(characterOne.getX()  - 1.0f > -1.0f*cameraPosition.z))
 		{
@@ -825,7 +829,7 @@ int main(int argc, char *argv[])
 		{
 			camera.translateForward(0.05f);
 			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		}
+		}*/
 
 		// Clear the screen to black
 		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);

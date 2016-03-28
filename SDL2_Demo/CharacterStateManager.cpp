@@ -5,12 +5,67 @@ CharacterStateManager::CharacterStateManager(CharacterData* characterData) :
 	mData(characterData),
 	mInputs(GameInput::INPUT_NONE),
 	mJumpTimer(0),
-	mGameEvent(GameEvent::EVENT_NONE)
+	mHitTimer(0),
+	mBlockTimer(0),
+	mGameEvent(GameEvent::EVENT_NONE),
+	mBackwardDirection(GameInput::INPUT_LEFT),
+	mForwardDirection(GameInput::INPUT_RIGHT)
 {
 	mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_NEUTRAL);
 	mState.setVerticalDirection(VerticalDirection::VDIRECTION_STAND);
 	mState.setAction(Action::ACTION_NONE);
 	mState.setStateTimer(0);
+
+	displayMoveSet = false;
+
+	std::string temp[] = {
+		"STAND_PUNCH1",
+		"STAND_PUNCH2",
+		"STAND_KICK1",
+		"STAND_KICK2",
+		"CROUCH_PUNCH1",
+		"CROUCH_PUNCH2",
+		"CROUCH_KICK1",
+		"CROUCH_KICK2",
+		"JUMP_PUNCH1",
+		"JUMP_PUNCH2",
+		"JUMP_KICK1",
+		"JUMP_KICK2",
+		"IDLE",
+		"WALK_FORWARD",
+		"WALK_BACKWARD",
+		"JUMP",
+		"CROUCH",
+		"STAND_BLOCK",
+		"CROUCH_BLOCK",
+		"STAND_HIT",
+		"CROUCH_HIT",
+		"JUMP_HIT",
+		"STAND_KNOCKDOWN",
+		"CROUCH_KNOCKDOWN",
+		"JUMP_KNOCKDOWN"
+	};
+
+	std::string temp2[] = {
+		"ACTION_NONE",
+		"ACTION_BLOCK",
+		"ACTION_HIT",
+		"ACTION_KNOCKDOWN",
+		"ACTION_PUNCH1",
+		"ACTION_PUNCH2",
+		"ACTION_KICK1",
+		"ACTION_KICK2"
+	};
+
+	for (unsigned int i = 0; i != 25; ++i)
+	{
+		moveSetString[i] = temp[i];
+	}
+
+	for (unsigned int i = 0; i != 8; ++i)
+	{
+		actionString[i] = temp2[i];
+	}
 }
 
 void CharacterStateManager::setGameInputs(unsigned int inputs)
@@ -20,91 +75,14 @@ void CharacterStateManager::setGameInputs(unsigned int inputs)
 
 void CharacterStateManager::update()
 {
-	// check to see if any changes in state should be ignored
-	bool canAttack = true;
-	bool isDoingAction = false;
-	bool isJumping = false;
-
-	VerticalDirection stateVerticalDirection = mState.getVerticalDirection();
-	Action stateAction = mState.getAction();
-
-	// force state to stand after landing from jumping
-	if (stateVerticalDirection == VerticalDirection::VDIRECTION_JUMP &&  (mState.getStateTimer() + mJumpTimer) >= mData->getTotalFrames(MoveSet::JUMP))
-	{
-		// force standing and reset timer
-		mState.setVerticalDirection(VerticalDirection::VDIRECTION_STAND);
-		mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_NEUTRAL);
-		mState.setAction(Action::ACTION_NONE);
-		mState.setStatus(Status::STATUS_NONE);
-		mState.setStateTimer(0);
-		mJumpTimer = 0;
-
-		// check to see if character is in hit state when it lands
-		// if so, change the action to being knockdown
-		if (stateAction == Action::ACTION_HIT)
-		{
-			//mJumpAndHit = 2;
-			//mState.setAction(Action::ACTION_KNOCKDOWN);
-		}
-	}
-
-	if (mState.getStatus() != Status::STATUS_NONE || mState.getAction() != Action::ACTION_NONE)
-	{
-		canAttack = false;
-	}
-
-	// update state relating to actions
-	updateAction(canAttack, stateVerticalDirection, stateAction, mState.getStateTimer());
-
-	// update all booleans if character is attacking
-	stateVerticalDirection = mState.getVerticalDirection();
-	stateAction = mState.getAction();
-
-	if (stateVerticalDirection == VerticalDirection::VDIRECTION_JUMP)
-	{
-		isJumping = true;
-		updateJump(isJumping, mState.getStateTimer() + mJumpTimer);
-	}
-
-	if (stateAction != Action::ACTION_NONE)
-	{
-		isDoingAction = true;
-	}
-
-	// update any directions if necessary
-	updateDirection(isDoingAction, isJumping);
-
-	// check game events and change states appropriately
-	updateGameEvent(stateVerticalDirection, mState.getStateTimer());
+	updateDirection();
+	updateAction(mState.getHorizontalDirection(), mState.getVerticalDirection(), mState.getAction(), mState.getStateTimer());
 
 	// reset game event after updating it
 	mGameEvent = GameEvent::EVENT_NONE;
 
 	// increment the state duration everytime this function (update) is called
 	mState.setStateTimer(mState.getStateTimer() + 1);
-}
-
-void CharacterStateManager::updateJump(bool isJumping, unsigned int stateTime)
-{
-	if (!isJumping)
-	{
-		return;
-	}
-
-	unsigned int jumpStartup = mData->getTotalStartupFrames(MoveSet::JUMP);
-
-	if (stateTime < jumpStartup)
-	{
-		mState.setStatus(Status::STATUS_STARTUP);
-	}
-	else if (stateTime < jumpStartup + mData->getTotalActiveFrames(MoveSet::JUMP))
-	{
-		mState.setStatus(Status::STATUS_NONE);
-	}
-	else
-	{
-		mState.setStatus(Status::STATUS_RECOVERY);
-	}
 }
 
 void CharacterStateManager::setAttackAction(Action action)
@@ -144,127 +122,6 @@ void CharacterStateManager::updateAttackStatus(unsigned int attackIndex)
 	}
 }
 
-void CharacterStateManager::updateAttack(bool canAttack, VerticalDirection verticalState)
-{
-	// first check if the character is already attacking
-	// if attacking, change state to startup, active, or recovery
-
-	unsigned int direction = 0;
-
-	if (verticalState == VerticalDirection::VDIRECTION_CROUCH)
-	{
-		direction = 4;
-	}
-
-	if (verticalState == VerticalDirection::VDIRECTION_JUMP)
-	{
-		direction = 8;
-	}
-
-	switch (mState.getAction())
-	{
-	case Action::ACTION_PUNCH1 : 
-		updateAttackStatus(MoveSet::STAND_PUNCH1 + direction);
-		break;
-	case Action::ACTION_PUNCH2 :
-		updateAttackStatus(MoveSet::STAND_PUNCH2 + direction);
-		break;
-	case Action::ACTION_KICK1 :
-		updateAttackStatus(MoveSet::STAND_KICK1 + direction);
-		break;
-	case Action::ACTION_KICK2 :
-		updateAttackStatus(MoveSet::STAND_KICK2 + direction);
-		break;
-	default: 
-		break;
-	}
-
-	if (!canAttack)
-	{
-		return;
-	}
-
-	if (mInputs & GameInput::INPUT_PUNCH1)
-	{
-		setAttackAction(Action::ACTION_PUNCH1);
-	}
-	else if (mInputs & GameInput::INPUT_KICK1)
-	{
-		setAttackAction(Action::ACTION_KICK1);
-	}
-	else if (mInputs & GameInput::INPUT_PUNCH2)
-	{
-		setAttackAction(Action::ACTION_PUNCH2);
-	}
-	else if (mInputs & GameInput::INPUT_KICK2)
-	{
-		setAttackAction(Action::ACTION_KICK2);
-	}
-}
-
-void CharacterStateManager::updateDirection(bool isDoingAction, bool isJumping)
-{
-	if (isDoingAction || isJumping)
-	{
-		return;
-	}
-
-	if (mInputs & GameInput::INPUT_RIGHT)
-	{
-		if (mState.getHorizontalDirection() != HorizontalDirection::HDIRECTION_FORWARD)
-		{
-			mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_FORWARD);
-			mState.setStateTimer(0);
-			mState.setStatus(Status::STATUS_NONE);
-		}
-	}
-	else if (mInputs & GameInput::INPUT_LEFT)
-	{
-		if (mState.getHorizontalDirection() != HorizontalDirection::HDIRECTION_BACKWARD)
-		{
-			mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_BACKWARD);
-			mState.setStateTimer(0);
-			mState.setStatus(Status::STATUS_NONE);
-		}
-	}
-	else if (mInputs == GameInput::INPUT_NONE || !( mInputs & GameInput::INPUT_RIGHT || mInputs & GameInput::INPUT_LEFT ))
-	{
-		if (mState.getHorizontalDirection() != HorizontalDirection::HDIRECTION_NEUTRAL)
-		{
-			mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_NEUTRAL);
-			mState.setStateTimer(0);
-			mState.setStatus(Status::STATUS_NONE);
-		}
-	}
-
-	if (mInputs & GameInput::INPUT_DOWN)
-	{
-		if (mState.getVerticalDirection() != VerticalDirection::VDIRECTION_CROUCH)
-		{
-			mState.setVerticalDirection(VerticalDirection::VDIRECTION_CROUCH);
-			mState.setStatus(Status::STATUS_NONE);
-			mState.setStateTimer(0);
-		}
-	}
-	else if (mInputs & GameInput::INPUT_UP)
-	{
-		// obtain character data to set jump duration
-		mState.setVerticalDirection(VerticalDirection::VDIRECTION_JUMP);
-		mState.setStateTimer(0);
-		mState.setStatus(Status::STATUS_STARTUP);
-		mJumpTimer = 0;
-	}
-	else if (mInputs == GameInput::INPUT_NONE || !( mInputs & GameInput::INPUT_UP || mInputs & GameInput::INPUT_DOWN ))
-	{
-		if (mState.getVerticalDirection() != VerticalDirection::VDIRECTION_STAND)
-		{
-			mState.setVerticalDirection(VerticalDirection::VDIRECTION_STAND);
-			mState.setStateTimer(0);
-			mState.setStatus(Status::STATUS_NONE);
-		}
-	}
-}
-
 CharacterState CharacterStateManager::getState()
 {
 	return mState;
@@ -274,8 +131,11 @@ unsigned int CharacterStateManager::getJumpDuration()
 {
 	if (mState.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
 	{
-		return mJumpTimer + mState.getStateTimer();
+		//return mJumpTimer + mState.getStateTimer();
+		return mJumpTimer;
 	}
+
+	return 0;
 }
 
 unsigned int CharacterStateManager::getStateTime()
@@ -299,9 +159,13 @@ MoveSet CharacterStateManager::getMoveSet()
 	}
 	if (action == Action::ACTION_HIT)
 	{
-		unsigned int actionHit = (unsigned int) MoveSet::STAND_HIT + (unsigned int) vdir + mJumpAndHit;
+		unsigned int actionHit = (unsigned int) MoveSet::STAND_HIT + (unsigned int) vdir;
 		move = (MoveSet) actionHit;
-		mJumpAndHit = 0;
+	}
+	if (action == Action::ACTION_BLOCK)
+	{
+		unsigned int actionBlock = (unsigned int)MoveSet::STAND_BLOCK + (unsigned int) vdir;
+		move = (MoveSet) actionBlock;
 	}
 	if (action == Action::ACTION_PUNCH1 ||
 		action == Action::ACTION_PUNCH2 ||
@@ -332,6 +196,11 @@ MoveSet CharacterStateManager::getMoveSet()
 		move = MoveSet::IDLE;
 	}
 
+	if (displayMoveSet)
+	{
+		std::cout << actionString[action] << std::endl;
+		std::cout << moveSetString[move] << std::endl;
+	}
 	return move;
 }
 
@@ -350,24 +219,10 @@ GameEvent CharacterStateManager::getGameEvent()
 	return mGameEvent;
 }
 
-void CharacterStateManager::updateGameEvent(VerticalDirection verticalState, unsigned int stateTime)
-{
-	if (mGameEvent == GameEvent::EVENT_HIT)
-	{
-		mState.setAction(Action::ACTION_HIT);
-
-		if (verticalState == VerticalDirection::VDIRECTION_JUMP)
-		{
-			mJumpTimer = stateTime;
-		}
-
-		mState.setStateTimer(0);
-	}
-}
-
-void CharacterStateManager::setHitTimer(unsigned int hitstun)
+void CharacterStateManager::setHitTimer(unsigned int hitstun, unsigned int blockstun)
 {
 	mHitTimer = hitstun;
+	mBlockTimer = blockstun;
 }
 
 unsigned int CharacterStateManager::getHitTimer()
@@ -375,30 +230,297 @@ unsigned int CharacterStateManager::getHitTimer()
 	return mHitTimer;
 }
 
-void CharacterStateManager::updateAction(bool canAttack, VerticalDirection verticalState, Action action, unsigned int stateTime)
+void CharacterStateManager::updateJump(Action action, VerticalDirection verticalDirection)
 {
-	if (action == Action::ACTION_HIT && stateTime >= mHitTimer)
+	if (verticalDirection == VerticalDirection::VDIRECTION_JUMP)
 	{
-		mState.setAction(Action::ACTION_NONE);
-		mState.setStatus(Status::STATUS_NONE);
-
-		if (verticalState == VerticalDirection::VDIRECTION_JUMP)
+		if (action == Action::ACTION_HIT)
 		{
-			mJumpTimer = stateTime;
+			++mJumpTimer;
+			return;
 		}
 
-		mState.setStateTimer(0);
+		unsigned int jumpStartup = mData->getTotalStartupFrames(MoveSet::JUMP);
+		unsigned int jumpActive = mData->getTotalActiveFrames(MoveSet::JUMP);
+
+		if (mJumpTimer < jumpStartup)
+		{
+			mState.setStatus(Status::STATUS_STARTUP);
+		}
+		else if (mJumpTimer < jumpStartup + jumpActive)
+		{
+			mState.setStatus(Status::STATUS_ACTIVE);
+		}
+		else if (mJumpTimer < jumpStartup + jumpActive + mData->getTotalRecoveryFrames(MoveSet::JUMP))
+		{
+			mState.setStatus(Status::STATUS_RECOVERY);
+		}
+		else
+		{
+			// force standing after landing from a jump
+			mState.setStatus(Status::STATUS_NONE);
+			mState.setVerticalDirection(VerticalDirection::VDIRECTION_STAND);
+			mState.setStateTimer(0);
+			mJumpTimer = 0;
+
+			if (action != Action::ACTION_HIT)
+			{
+				mState.setAction(Action::ACTION_NONE);
+			}
+		}
+
+		// when jumping, increment jump timer
+		++mJumpTimer;
+	}
+}
+
+void CharacterStateManager::updateDirection()
+{
+	updateJump(mState.getAction(), mState.getVerticalDirection());
+	updateVerticalDirection(mState.getAction(), mState.getVerticalDirection());
+	updateHorizontalDirection(mState.getAction(), mState.getHorizontalDirection(), mState.getVerticalDirection());
+}
+
+void CharacterStateManager::updateVerticalDirection(Action action, VerticalDirection verticalDirection)
+{
+	// if the character is doing an action or jumping, we don't need to update the vertical direction state
+	if ((action != Action::ACTION_NONE &&
+		action != Action::ACTION_KNOCKDOWN &&
+		action != Action::ACTION_HIT &&
+		action != Action::ACTION_BLOCK) ||
+		verticalDirection == VerticalDirection::VDIRECTION_JUMP)
+	{
+		return;
 	}
 
-	if (action == Action::ACTION_KNOCKDOWN && stateTime >= mData->getTotalFrames(MoveSet::STAND_KNOCKDOWN))
+	// if both up and down are pressed at the same time, crouching will have the most priority
+	if ((mInputs & GameInput::INPUT_DOWN) &&
+		(verticalDirection != VerticalDirection::VDIRECTION_CROUCH))
 	{
-		mState.setAction(Action::ACTION_NONE);
+		// if the player presses down and the character is not crouching, change state to crouch
+		mState.setVerticalDirection(VerticalDirection::VDIRECTION_CROUCH);
+		if (action != Action::ACTION_KNOCKDOWN && action != Action::ACTION_HIT && action != Action::ACTION_BLOCK)
+		{
+			mState.setStatus(Status::STATUS_NONE);
+			mState.setStateTimer(0);
+		}
+	}
+	else if ((mInputs & GameInput::INPUT_UP) &&
+		(verticalDirection != VerticalDirection::VDIRECTION_JUMP) &&
+		(action != Action::ACTION_KNOCKDOWN) && 
+		(action != Action::ACTION_HIT) && 
+		(action != Action::ACTION_BLOCK))
+	{
+		// if the player presses up and the character is not jumping, change state to jump
+		// set player status to startup and start jump timer
+		mState.setVerticalDirection(VerticalDirection::VDIRECTION_JUMP);
+		mState.setStatus(Status::STATUS_STARTUP);
+		mState.setStateTimer(0);
+		mJumpTimer = 1;
+	}
+	else if (!(mInputs & GameInput::INPUT_DOWN || mInputs & GameInput::INPUT_UP) &&
+		(verticalDirection != VerticalDirection::VDIRECTION_STAND))
+	{
+		// only stand when the player is not trying to jump or crouch
+		mState.setVerticalDirection(VerticalDirection::VDIRECTION_STAND);
+		if (action != Action::ACTION_KNOCKDOWN && action != Action::ACTION_HIT && action != Action::ACTION_BLOCK)
+		{
+			mState.setStatus(Status::STATUS_NONE);
+			mState.setStateTimer(0);
+		}
+	}
+}
+
+void CharacterStateManager::updateHorizontalDirection(Action action, HorizontalDirection horizontalDirection, VerticalDirection verticalDirection)
+{
+	// if the character is doing an action or jumping, we don't need to update the horizontal direction state either
+	if ((action != Action::ACTION_NONE &&
+		action != Action::ACTION_KNOCKDOWN &&
+		action != Action::ACTION_HIT &&
+		action != Action::ACTION_BLOCK) ||
+		verticalDirection == VerticalDirection::VDIRECTION_JUMP)
+	{
+		return;
+	}
+
+	if ((mInputs & mForwardDirection) &&
+		(horizontalDirection != HorizontalDirection::HDIRECTION_FORWARD))
+	{
+		// walk in the forward direction if the player presses the forward button
+		mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_FORWARD);
+		if (action != Action::ACTION_KNOCKDOWN && action != Action::ACTION_HIT && action != Action::ACTION_BLOCK)
+		{
+			mState.setStatus(Status::STATUS_NONE);
+			mState.setStateTimer(0);
+		}
+	}
+	else if ((mInputs & mBackwardDirection) &&
+		(horizontalDirection != HorizontalDirection::HDIRECTION_BACKWARD))
+	{
+		// walk in the backward direction if the player presses the backward button
+		mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_BACKWARD);
+		if (action != Action::ACTION_KNOCKDOWN && action != Action::ACTION_HIT && action != Action::ACTION_BLOCK)
+		{
+			mState.setStatus(Status::STATUS_NONE);
+			mState.setStateTimer(0);
+		}
+
+	}
+	else if (!(mInputs & mBackwardDirection|| mInputs & mForwardDirection) &&
+		(horizontalDirection != HorizontalDirection::HDIRECTION_NEUTRAL))
+	{
+		// change to neutral position if the player does not press a direction
+		mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_NEUTRAL);
+		if (action != Action::ACTION_KNOCKDOWN && action != Action::ACTION_HIT && action != Action::ACTION_BLOCK)
+		{
+			mState.setStatus(Status::STATUS_NONE);
+			mState.setStateTimer(0);
+		}
+	}
+}
+
+void CharacterStateManager::updateAction(HorizontalDirection horizontalDirection, VerticalDirection verticalDirection, Action action, unsigned int stateTime)
+{
+	if ((mGameEvent == GameEvent::EVENT_HIT || mGameEvent == GameEvent::EVENT_HIT_HIGH || mGameEvent == GameEvent::EVENT_HIT_LOW) &&
+		action != Action::ACTION_KNOCKDOWN)
+	{
+		mState.setStatus(Status::STATUS_NONE);
+
+		if (verticalDirection == VerticalDirection::VDIRECTION_JUMP && action != Action::ACTION_HIT)
+		{
+			mState.setAction(Action::ACTION_HIT);
+			mState.setStateTimer(0);
+		}
+		else if (verticalDirection != VerticalDirection::VDIRECTION_JUMP)
+		{
+			// check to see if player is holding back and not doing anything else like getting hit or attacking
+			bool holdingBackOnly = (horizontalDirection == HorizontalDirection::HDIRECTION_BACKWARD) && (action == Action::ACTION_NONE);
+
+			if (action == Action::ACTION_BLOCK)
+			{
+				mState.setAction(Action::ACTION_BLOCK);
+				mState.setStateTimer(0);
+			}
+			else if (holdingBackOnly &&
+				verticalDirection == VerticalDirection::VDIRECTION_STAND &&
+				(mGameEvent == GameEvent::EVENT_HIT || mGameEvent == GameEvent::EVENT_HIT_HIGH))
+			{
+				mState.setAction(Action::ACTION_BLOCK);
+				mState.setStateTimer(0);
+			}
+			else if (holdingBackOnly &&
+				verticalDirection == VerticalDirection::VDIRECTION_CROUCH &&
+				(mGameEvent == GameEvent::EVENT_HIT || mGameEvent == GameEvent::EVENT_HIT_LOW))
+			{
+				mState.setAction(Action::ACTION_BLOCK);
+				mState.setStateTimer(0);
+			}
+			else
+			{
+				mState.setAction(Action::ACTION_HIT);
+				mState.setStateTimer(0);
+			}
+		}
+	}
+
+	if (mGameEvent == GameEvent::EVENT_KNOCKDOWN && action != Action::ACTION_KNOCKDOWN)
+	{
+		mState.setAction(Action::ACTION_KNOCKDOWN);
 		mState.setStatus(Status::STATUS_NONE);
 		mState.setStateTimer(0);
 	}
 
-	if (mState.getAction() != Action::ACTION_HIT)
+	action = mState.getAction();
+	stateTime = mState.getStateTimer();
+
+	if (action == Action::ACTION_HIT)
 	{
-		updateAttack(canAttack, verticalState);
+		if (verticalDirection == VerticalDirection::VDIRECTION_JUMP && mJumpTimer >= mData->getTotalActiveFrames(MoveSet::JUMP))
+		{
+			mState.setAction(Action::ACTION_NONE);
+			mState.setStateTimer(0);
+		}
+		else if (verticalDirection != VerticalDirection::VDIRECTION_JUMP && stateTime >= mHitTimer)
+		{
+			mState.setAction(Action::ACTION_NONE);
+			mState.setStateTimer(0);
+		}
+	}
+	else if (action == Action::ACTION_KNOCKDOWN)
+	{
+		if (stateTime >= mData->getTotalFrames(MoveSet::STAND_KNOCKDOWN))
+		{
+			mState.setAction(Action::ACTION_NONE);
+			mState.setStateTimer(0);
+		}
+	}
+	else if (action == Action::ACTION_BLOCK)
+	{
+		if (stateTime >= mBlockTimer)
+		{
+			mState.setAction(Action::ACTION_NONE);
+			mState.setStateTimer(0);
+		}
+	}
+	else
+	{
+		updateAttack(verticalDirection, action);
+	}
+}
+
+void CharacterStateManager::updateAttack(VerticalDirection verticalDirection, Action action)
+{
+	// first check if the character is already attacking
+	// if attacking, change state to startup, active, or recovery
+	unsigned int direction = 0;
+
+	if (verticalDirection == VerticalDirection::VDIRECTION_CROUCH)
+	{
+		direction = 4;
+	}
+
+	if (verticalDirection == VerticalDirection::VDIRECTION_JUMP)
+	{
+		direction = 8;
+	}
+
+	switch (action)
+	{
+	case Action::ACTION_PUNCH1:
+		updateAttackStatus(MoveSet::STAND_PUNCH1 + direction);
+		break;
+	case Action::ACTION_PUNCH2:
+		updateAttackStatus(MoveSet::STAND_PUNCH2 + direction);
+		break;
+	case Action::ACTION_KICK1:
+		updateAttackStatus(MoveSet::STAND_KICK1 + direction);
+		break;
+	case Action::ACTION_KICK2:
+		updateAttackStatus(MoveSet::STAND_KICK2 + direction);
+		break;
+	default:
+		break;
+	}
+
+	if (action != Action::ACTION_NONE)
+	{
+		return;
+	}
+
+	if (mInputs & GameInput::INPUT_PUNCH1)
+	{
+		setAttackAction(Action::ACTION_PUNCH1);
+	}
+	else if (mInputs & GameInput::INPUT_KICK1)
+	{
+		setAttackAction(Action::ACTION_KICK1);
+	}
+	else if (mInputs & GameInput::INPUT_PUNCH2)
+	{
+		setAttackAction(Action::ACTION_PUNCH2);
+	}
+	else if (mInputs & GameInput::INPUT_KICK2)
+	{
+		setAttackAction(Action::ACTION_KICK2);
 	}
 }

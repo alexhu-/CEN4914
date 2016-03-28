@@ -23,7 +23,10 @@ public:
 	void updateState();
 	void updatePosition(float forwardSpeed, float backwardSpeed, float jumpUpwardSpeed, float jumpForwardSpeed);
 	bool shouldChangeAnimation();
-	void setEventHit(unsigned int hitstun, unsigned int jumphitstun);
+	void setEventHit(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun);
+	void setEventKnockdown();
+
+	void setDisplayMoveSetOn();
 
 private:
 	CharacterData* mData;

@@ -364,7 +364,7 @@ void MyAnimatedMeshClass::knockdownSetup()
 	pModelAction->recovery = 163;
 	pModelAction->end = 168;
 	pModelAction->totalStartup = 1;
-	pModelAction->totalActive = mActions[22].totalActive;
+	pModelAction->totalActive = mActions[22].totalActive + 3;
 	pModelAction->totalRecovery = mActions[22].totalStartup;
 }
 

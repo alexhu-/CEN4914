@@ -124,15 +124,29 @@ bool PlayerCharacter::shouldChangeAnimation()
 	return mStateManager.shouldChangeAnimation();
 }
 
-void PlayerCharacter::setEventHit(unsigned int hitstun, unsigned int jumphitstun)
+void PlayerCharacter::setEventHit(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun)
 {
 	mStateManager.setGameEvent(GameEvent::EVENT_HIT);
 	if (mStateManager.getState().getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
 	{
-		mStateManager.setHitTimer(jumphitstun);
+		mStateManager.setHitTimer(jumphitstun, blockstun);
 	}
 	else
 	{
-		mStateManager.setHitTimer(hitstun);
+		mStateManager.setHitTimer(hitstun, blockstun);
 	}
+}
+
+void PlayerCharacter::setDisplayMoveSetOn()
+{
+	mStateManager.displayMoveSet = true;
+}
+
+void PlayerCharacter::setEventKnockdown()
+{
+	if (mStateManager.getState().getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+	{
+		return;
+	}
+	mStateManager.setGameEvent(GameEvent::EVENT_KNOCKDOWN);
 }
