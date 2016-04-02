@@ -21,10 +21,11 @@ public:
 	void setInputs(unsigned int inputs);
 	MoveSet getMoveSet();
 	void updateState();
-	void updatePosition(float forwardSpeed, float backwardSpeed, float jumpUpwardSpeed, float jumpForwardSpeed);
+	void updatePosition(float forwardSpeed, float backwardSpeed, float jumpUpwardSpeed, float jumpForwardSpeed, float jumpBackwardSpeed);
 	bool shouldChangeAnimation();
 	void setEventHit(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun);
 	void setEventKnockdown();
+	void swapDirections();
 
 	void setDisplayMoveSetOn();
 

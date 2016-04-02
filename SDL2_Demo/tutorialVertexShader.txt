@@ -6,6 +6,8 @@ layout (location = 2) in vec2 texCoords;
 layout (location = 3) in ivec4 BoneIDs;
 layout (location = 4) in vec4 Weights;
 
+out vec3 normal_modelspace;
+out vec3 position_modelspace;
 out vec2 TexCoords;
 
 const int MAX_BONES = 100;
@@ -23,6 +25,11 @@ void main()
     BoneTransform += gBones[BoneIDs[3]] * Weights[3];
 	vec4 PosL = BoneTransform * vec4(position, 1.0);
 
-	gl_Position = proj * view * model * PosL;
+	vec4 PosL_modelspace = model * PosL;
+
+	position_modelspace = vec3(PosL_modelspace);
+	normal_modelspace = mat3(inverse(model)) * normal;
+
+	gl_Position = proj * view * PosL_modelspace;
 	TexCoords = texCoords;
 }

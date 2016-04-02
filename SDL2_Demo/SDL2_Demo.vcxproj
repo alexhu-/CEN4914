@@ -141,10 +141,13 @@
     <ClCompile Include="MyAnimatedMeshClass.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="UIRectangle.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="skyboxFragmentShader.txt" />
+    <Text Include="skyboxVertexShader.txt" />
     <Text Include="textFragmentShader.txt" />
     <Text Include="textVertexShader.txt" />
     <Text Include="tutorialFragmentShader.txt" />
@@ -166,6 +169,7 @@
     <ClInclude Include="MyAnimatedMeshClass.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="UIRectangle.h" />
   </ItemGroup>
   <ItemGroup>

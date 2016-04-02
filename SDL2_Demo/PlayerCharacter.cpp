@@ -70,7 +70,7 @@ void PlayerCharacter::updateState()
 	mStateManager.update();
 }
 
-void PlayerCharacter::updatePosition(float forwardSpeed, float backwardSpeed, float jumpUpwardSpeed, float jumpForwardSpeed)
+void PlayerCharacter::updatePosition(float forwardSpeed, float backwardSpeed, float jumpUpwardSpeed, float jumpForwardSpeed, float jumpBackwardSpeed)
 {
 	CharacterState state = mStateManager.getState();
 	if (state.getHorizontalDirection() == HorizontalDirection::HDIRECTION_FORWARD && state.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND  && state.getAction() == Action::ACTION_NONE)
@@ -102,7 +102,7 @@ void PlayerCharacter::updatePosition(float forwardSpeed, float backwardSpeed, fl
 		if (jumpTime > jumpStartup && jumpTime <  jumpStartup + jumpActive)
 		{
 			float yinc = 2.0f - 2.0f * (float)(jumpTime - 3) / halfActive;
-			this->translateCharacter(-1.0f * jumpForwardSpeed, jumpUpwardSpeed * yinc, 0.0f);
+			this->translateCharacter(-1.0f * jumpBackwardSpeed, jumpUpwardSpeed * yinc, 0.0f);
 		}
 	}
 	if (state.getHorizontalDirection() == HorizontalDirection::HDIRECTION_NEUTRAL && state.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
@@ -149,4 +149,9 @@ void PlayerCharacter::setEventKnockdown()
 		return;
 	}
 	mStateManager.setGameEvent(GameEvent::EVENT_KNOCKDOWN);
+}
+
+void PlayerCharacter::swapDirections()
+{
+	mStateManager.swapDirections();
 }

@@ -89,10 +89,6 @@ void CharacterStateManager::setAttackAction(Action action)
 {
 	// set action and reset timer
 	// force status to be startup as we are just starting the move
-	if (mState.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
-	{
-		mJumpTimer = mState.getStateTimer();
-	}
 	mState.setAction(action);
 	mState.setStateTimer(0);
 	mState.setStatus(Status::STATUS_STARTUP);
@@ -234,12 +230,6 @@ void CharacterStateManager::updateJump(Action action, VerticalDirection vertical
 {
 	if (verticalDirection == VerticalDirection::VDIRECTION_JUMP)
 	{
-		if (action == Action::ACTION_HIT)
-		{
-			++mJumpTimer;
-			return;
-		}
-
 		unsigned int jumpStartup = mData->getTotalStartupFrames(MoveSet::JUMP);
 		unsigned int jumpActive = mData->getTotalActiveFrames(MoveSet::JUMP);
 
@@ -260,13 +250,15 @@ void CharacterStateManager::updateJump(Action action, VerticalDirection vertical
 			// force standing after landing from a jump
 			mState.setStatus(Status::STATUS_NONE);
 			mState.setVerticalDirection(VerticalDirection::VDIRECTION_STAND);
+			mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_NEUTRAL);
+			mState.setAction(Action::ACTION_NONE);
 			mState.setStateTimer(0);
 			mJumpTimer = 0;
+		}
 
-			if (action != Action::ACTION_HIT)
-			{
-				mState.setAction(Action::ACTION_NONE);
-			}
+		if (action == Action::ACTION_HIT)
+		{
+			mState.setStatus(Status::STATUS_NONE);
 		}
 
 		// when jumping, increment jump timer
@@ -276,9 +268,9 @@ void CharacterStateManager::updateJump(Action action, VerticalDirection vertical
 
 void CharacterStateManager::updateDirection()
 {
-	updateJump(mState.getAction(), mState.getVerticalDirection());
-	updateVerticalDirection(mState.getAction(), mState.getVerticalDirection());
 	updateHorizontalDirection(mState.getAction(), mState.getHorizontalDirection(), mState.getVerticalDirection());
+	updateVerticalDirection(mState.getAction(), mState.getVerticalDirection());
+	updateJump(mState.getAction(), mState.getVerticalDirection());
 }
 
 void CharacterStateManager::updateVerticalDirection(Action action, VerticalDirection verticalDirection)
@@ -316,7 +308,7 @@ void CharacterStateManager::updateVerticalDirection(Action action, VerticalDirec
 		mState.setVerticalDirection(VerticalDirection::VDIRECTION_JUMP);
 		mState.setStatus(Status::STATUS_STARTUP);
 		mState.setStateTimer(0);
-		mJumpTimer = 1;
+		mJumpTimer = 0;
 	}
 	else if (!(mInputs & GameInput::INPUT_DOWN || mInputs & GameInput::INPUT_UP) &&
 		(verticalDirection != VerticalDirection::VDIRECTION_STAND))
@@ -435,12 +427,7 @@ void CharacterStateManager::updateAction(HorizontalDirection horizontalDirection
 
 	if (action == Action::ACTION_HIT)
 	{
-		if (verticalDirection == VerticalDirection::VDIRECTION_JUMP && mJumpTimer >= mData->getTotalActiveFrames(MoveSet::JUMP))
-		{
-			mState.setAction(Action::ACTION_NONE);
-			mState.setStateTimer(0);
-		}
-		else if (verticalDirection != VerticalDirection::VDIRECTION_JUMP && stateTime >= mHitTimer)
+		if (verticalDirection != VerticalDirection::VDIRECTION_JUMP && stateTime >= mHitTimer)
 		{
 			mState.setAction(Action::ACTION_NONE);
 			mState.setStateTimer(0);
@@ -523,4 +510,11 @@ void CharacterStateManager::updateAttack(VerticalDirection verticalDirection, Ac
 	{
 		setAttackAction(Action::ACTION_KICK2);
 	}
+}
+
+void CharacterStateManager::swapDirections()
+{
+	GameInput temp = mForwardDirection;
+	mForwardDirection = mBackwardDirection;
+	mBackwardDirection = temp;
 }

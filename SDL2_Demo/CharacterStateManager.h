@@ -44,6 +44,7 @@ public:
 	GameEvent getGameEvent();
 	void setHitTimer(unsigned int hitstun, unsigned int blockstun);
 	unsigned int getHitTimer();
+	void swapDirections();
 
 	bool displayMoveSet;
 

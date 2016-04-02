@@ -27,6 +27,7 @@
 #include "PlayerCharacter.h"
 #include "Scene.h"
 #include "ShaderProgram.h"
+#include "Skybox.h"
 #include "UIRectangle.h"
 
 #include "MyAnimatedMeshClass.h"
@@ -150,16 +151,17 @@ int main(int argc, char *argv[])
 	};
 
 	// Shape shaders
-	ShaderProgram shapeShaderProgram(shapeVertexShaderFile, shapeFragmentShaderFile);
+	/*ShaderProgram shapeShaderProgram(shapeVertexShaderFile, shapeFragmentShaderFile);
 	shapeShaderProgram.compileShaderProgram();
 	GLuint shapeProgramId = shapeShaderProgram.getProgram();
 	shapeShaderProgram.use();
 
 	glBindFragDataLocation(shapeProgramId, 0, "outColor");
 
-	GLint shapeUniColor = glGetUniformLocation(shapeProgramId, "inColor");
+	GLint shapeUniColor = glGetUniformLocation(shapeProgramId, "inColor");*/
 
 	// Compile and setup the text shader
+	printf("Compiling text shaders\n");
 	ShaderProgram textShaderProgram(textVertexShaderFile, textFragmentShaderFile);
 	textShaderProgram.compileShaderProgram();
 	GLuint textProgramId = textShaderProgram.getProgram();
@@ -247,6 +249,7 @@ int main(int argc, char *argv[])
 
 	// Model shaders
 
+	printf("Compiling model shaders\n");
 	ShaderProgram shaderProgram(vertexShaderFile, fragmentShaderFile);
 	shaderProgram.compileShaderProgram();
 	GLuint shaderProgramId = shaderProgram.getProgram();
@@ -261,8 +264,38 @@ int main(int argc, char *argv[])
 
 	// get location of uniform attribute
 	GLint sampler = glGetUniformLocation(shaderProgramId, "texture_sampler");
-	//glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
+	GLuint eyeId = glGetUniformLocation(shaderProgramId, "eye");
+	GLuint lightColorId = glGetUniformLocation(shaderProgramId, "light_color");
+	GLuint lightDirectionId = glGetUniformLocation(shaderProgramId, "light.direction");
+	GLuint lightAmbientId = glGetUniformLocation(shaderProgramId, "light.ambient");
+	GLuint lightDiffuseId = glGetUniformLocation(shaderProgramId, "light.diffuse");
+	GLuint lightSpecularId = glGetUniformLocation(shaderProgramId, "light.specular");
+	GLuint shininessId = glGetUniformLocation(shaderProgramId, "material_shininess");
 
+
+	// Skybox shaders
+	printf("Compiling skybox shaders\n");
+	ShaderProgram skyboxProgram("skyboxVertexShader.txt", "skyboxFragmentShader.txt");
+	skyboxProgram.compileShaderProgram();
+	GLuint skyboxProgramId = skyboxProgram.getProgram();
+	skyboxProgram.use();
+	GLuint skyboxSampler = glGetUniformLocation(skyboxProgramId, "skybox");
+	GLuint skyboxViewId = glGetUniformLocation(skyboxProgramId, "view");
+	GLuint skyboxProjId = glGetUniformLocation(skyboxProgramId, "proj");
+
+	std::vector<std::string> skyboxFiles =
+	{
+		"Models/lmcity/lmcity_rt.tga",
+		"Models/lmcity/lmcity_lf.tga",
+		"Models/lmcity/lmcity_up.tga",
+		"Models/lmcity/lmcity_dn.tga",
+		"Models/lmcity/lmcity_bk.tga",
+		"Models/lmcity/lmcity_ft.tga",
+	};
+	Skybox skybox(skyboxFiles);
+	skybox.setup();
+
+	shaderProgram.use();
 
 	// assimp stuff
 
@@ -279,6 +312,8 @@ int main(int argc, char *argv[])
 	characterTwoModel.scale(0.005f, 0.005f, 0.005f);
 	characterTwoModel.rotateY(-90.0f);
 	characterTwo.translateCharacter(1.25f, 0.0f, 0.0f);
+	// swap input directions for player 2 because player 2 faces left
+	characterTwo.swapDirections();
 
 	MyAnimatedMeshClass characterOneData;
 	Model characterOneModel = Importer::loadModel(nanopath, nanotexture);
@@ -346,14 +381,14 @@ int main(int argc, char *argv[])
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
 
-	shapeShaderProgram.use();
+	/*shapeShaderProgram.use();
 
 	GLint uniModelShape = glGetUniformLocation(shapeProgramId, "model");
 	glUniformMatrix4fv(uniModelShape, 1, GL_FALSE, glm::value_ptr(model));
 	GLint uniViewShape = glGetUniformLocation(shapeProgramId, "view");
 	glUniformMatrix4fv(uniViewShape, 1, GL_FALSE, glm::value_ptr(view));
 	GLint uniProjShape = glGetUniformLocation(shapeProgramId, "proj");
-	glUniformMatrix4fv(uniProjShape, 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix4fv(uniProjShape, 1, GL_FALSE, glm::value_ptr(proj));*/
 
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
@@ -373,6 +408,18 @@ int main(int argc, char *argv[])
 	//girlScene.addModel(&nanoModel);
 	*/
 
+	// lighting variables
+	glm::vec3 lightColorModel(0.8f, 0.8f, 0.8f);
+	glm::vec3 lightColorField(0.6f, 0.6f, 0.6f);
+	glm::vec4 lightDirection(-0.5f, -1.0f, 0.0f, 1.0f);
+	glm::vec3 lightAmbient(0.15f, 0.15f, 0.15f);
+	glm::vec3 lightDiffuse(0.8f, 0.8f, 0.8f);
+	glm::vec3 lightSpecular(0.7f, 0.7f, 0.7f);
+	float shinyModel = 16.0f;
+	float shinyField = 4.0f;
+	glm::mat4 lightRotation(1.0f);
+	lightRotation = glm::rotate(lightRotation, glm::radians(-1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
 	bool displayBobScene = true;
 	bool displayGirlScene = true;
 
@@ -387,6 +434,7 @@ int main(int argc, char *argv[])
 	int actionDuration = 0;
 	unsigned int controllerInputs = 0;
 	unsigned int controller2Inputs = 0;
+	float cameraCapturePoint = 0.0f;
 
 	unsigned int currentFrame = 0;
 	float timeInMs = 0.0;
@@ -617,18 +665,6 @@ int main(int argc, char *argv[])
 			{
 				// kick2
 				controllerInputs |= GameInput::INPUT_KICK2;
-				/*
-				CharacterState player1State = fighterStateManager.getState();
-				Action player1Action = player1State.getAction();
-				HorizontalDirection player1HD = player1State.getHorizontalDirection();
-				VerticalDirection player1VD = player1State.getVerticalDirection();
-				unsigned int player1Time = player1State.getStateTimer();
-
-				std::cout << "Action: " << (int) player1Action << std::endl;
-				std::cout << "HD: " << (int)player1HD << std::endl;
-				std::cout << "VD: " << (int)player1VD << std::endl;
-				std::cout << "Time: " << (int)player1Time << std::endl;
-				*/
 			}
 
 			if ((windowEvent.type == SDL_KEYUP) && (windowEvent.key.keysym.sym == SDLK_u))
@@ -751,20 +787,35 @@ int main(int argc, char *argv[])
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_m))
 			{
-				characterOne.setEventHit(17, 60, 10);
+				characterOne.setEventHit(30, 60, 20);
 			}
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_n))
 			{
 				characterOne.setEventKnockdown();
 			}
-
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
 		}
+
+
+		float maxDistance = 6.0f;
+		float player1x = characterOne.getX();
+		float player2x = characterTwo.getX();
+		float distanceBetweenPlayers = player1x - player2x;
+		// check to see if distance is negative of positive
+		// if positive, check to see if distance between players is less than maxDistance
+		// if negative, check to see if distance is greater than negative maxDistance
+		bool canMoveBackwards = (distanceBetweenPlayers >= 0) ? (distanceBetweenPlayers < maxDistance) : (distanceBetweenPlayers > -1.0 * maxDistance);
 
 
 		characterTwo.setInputs(controllerInputs);
 		characterTwo.updateState();
-		characterTwo.updatePosition(0.02f, 0.015f, 0.08f, 0.04f);
+		if (canMoveBackwards)
+		{
+			characterTwo.updatePosition(-0.02f, -0.015f, 0.08f, -0.04f, -0.04f);
+		}
+		else
+		{
+			characterTwo.updatePosition(-0.02f, 0.0f, 0.08f, -0.04f, 0.0f);
+		}
 		if (characterTwo.shouldChangeAnimation())
 		{
 			characterTwoData.setAnimationIndex(characterTwo.getMoveSet());
@@ -773,7 +824,14 @@ int main(int argc, char *argv[])
 
 		characterOne.setInputs(controller2Inputs);
 		characterOne.updateState();
-		characterOne.updatePosition(0.02f, 0.015f, 0.08f, 0.04f);
+		if (canMoveBackwards)
+		{
+			characterOne.updatePosition(0.02f, 0.015f, 0.08f, 0.04f, 0.04f);
+		}
+		else
+		{
+			characterOne.updatePosition(0.02f, 0.0f, 0.08f, 0.04f, 0.0f);
+		}
 		if (characterOne.shouldChangeAnimation())
 		{
 			characterOneData.setAnimationIndex(characterOne.getMoveSet());
@@ -781,55 +839,63 @@ int main(int argc, char *argv[])
 		characterOne.setInputs(GameInput::INPUT_NONE);
 
 		glm::vec3 cameraPosition = camera.getPosition();
-		if (characterTwo.getX() > cameraStartingLocation && cameraPosition.z - 0.5f < characterTwo.getX())
+	
+		
+		player1x = characterOne.getX();
+		player2x = characterTwo.getX();
+		distanceBetweenPlayers = player1x - player2x;
+		if (distanceBetweenPlayers < 0)
 		{
-			camera.translateForward(-0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+			distanceBetweenPlayers *= -1.0f;
 		}
-		else if (characterTwo.getX() < -cameraStartingLocation && cameraPosition.z - 0.5f < -1.0f*characterTwo.getX())
-		{
-			camera.translateForward(-0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		}
-		/*else if (cameraPosition.z > cameraStartingLocation &&
-			(characterTwo.getX() < 0.0f) &&
-			(characterTwo.getX() - 1.0f > -1.0f*cameraPosition.z))
-		{
-			camera.translateForward(0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		}
-		else if (cameraPosition.z > cameraStartingLocation &&
-			(characterTwo.getX() >= 0.0f) &&
-			(characterTwo.getX() + 1.0f < cameraPosition.z))
-		{
-			camera.translateForward(0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		}*/
 
-		if (characterOne.getX() > cameraStartingLocation && cameraPosition.z - 0.5f < characterOne.getX())
+		// Camera should zoom in when the players get close to each other
+		// camera should zoom less if the players a little further away
+		// camera should zoom out if the players are than a certain distance away
+		if (distanceBetweenPlayers <= 2.0f && distanceBetweenPlayers > 1.0f && cameraPosition.z > 2.0)
 		{
-			camera.translateForward(-0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+			camera.translateForward(0.0125f);
 		}
-		else if (characterOne.getX() < -cameraStartingLocation && cameraPosition.z - 0.5f < -1.0f*characterOne.getX())
+		else if (distanceBetweenPlayers < 3.0f && distanceBetweenPlayers > 2.0f && cameraPosition.z > 2.5f)
 		{
-			camera.translateForward(-0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+			camera.translateForward(0.0125f);
 		}
-		/*else if (cameraPosition.z > cameraStartingLocation &&
-			(characterOne.getX() < 0.0f) &&
-			(characterOne.getX()  - 1.0f > -1.0f*cameraPosition.z))
+		else if (distanceBetweenPlayers >= 3.0f && cameraPosition.z < 3.0f)
 		{
-			camera.translateForward(0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+			camera.translateForward(-0.0125f);
 		}
-		else if (cameraPosition.z > cameraStartingLocation &&
-			(characterOne.getX() >= 0.0f) &&
-			(characterOne.getX() + 1.0f < cameraPosition.z))
+
+		float playerDistanceMidpoint = (player1x + player2x) / 2.0f;
+		if (!(cameraCapturePoint + 0.5f > playerDistanceMidpoint && cameraCapturePoint - 0.5f < playerDistanceMidpoint))
 		{
-			camera.translateForward(0.05f);
-			glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		}*/
+			if (cameraPosition.x > playerDistanceMidpoint)
+			{
+				camera.translateRight(-0.02f);
+			}
+			else
+			{
+				camera.translateRight(0.02f);
+			}
+
+			cameraCapturePoint = camera.getPosition().x;
+		}
+
+		if (!(player1x < cameraPosition.x + 3.1f && player1x > cameraPosition.x - 3.1f) ||
+			!(player2x < cameraPosition.x + 3.1f && player2x > cameraPosition.x - 3.1f))
+		{
+			if (cameraPosition.x > playerDistanceMidpoint)
+			{
+				camera.translateRight(-0.01f);
+			}
+			else
+			{
+				camera.translateRight(0.01f);
+			}
+		}
+
+
+		glUniformMatrix4fv(uniView, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
+
 
 		// Clear the screen to black
 		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
@@ -840,7 +906,24 @@ int main(int argc, char *argv[])
 		RenderText(textShaderProgram, "Player 2 Text", 600.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
 		RenderText(textShaderProgram, "Player 1 TextOH JUST TESTING IF LONG TEXT IS BAD IDK LOL", 25.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
 
+		glDepthMask(GL_FALSE);
+		skyboxProgram.use();
+		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.getViewMatrix()));	// Remove any translation component of the view matrix
+		skyboxView[3][1] = 0.5f;
+		glm::mat4 skyboxProj = glm::perspective(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+		glUniformMatrix4fv(skyboxViewId, 1, GL_FALSE, glm::value_ptr(skyboxView));
+		glUniformMatrix4fv(skyboxProjId, 1, GL_FALSE, glm::value_ptr(skyboxProj));
+		skybox.draw(skyboxSampler);
+		glDepthMask(GL_TRUE);
+
 		shaderProgram.use();
+		glUniform3f(eyeId, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+		glUniform3f(lightColorId, lightColorModel.x, lightColorModel.y, lightColorModel.z);
+		glUniform3f(lightAmbientId, lightAmbient.x, lightAmbient.y, lightAmbient.z);
+		glUniform3f(lightDiffuseId, lightDiffuse.x, lightDiffuse.y, lightDiffuse.z);
+		glUniform3f(lightSpecularId, lightSpecular.x, lightSpecular.y, lightSpecular.z);
+		glUniform3f(lightDirectionId, lightDirection.x, lightDirection.y, lightDirection.z);
+		glUniform1f(shininessId, shinyModel);
 
 		unsigned int runningTime = SDL_GetTicks() - startTime;
 		timeInMs = 16.66667f;
@@ -868,6 +951,9 @@ int main(int argc, char *argv[])
 
 		characterOne.draw(sampler, uniModel);
 
+		glUniform3f(lightColorId, lightColorField.x, lightColorField.y, lightColorField.z);
+		glUniform1f(shininessId, shinyField);
+
 		std::vector<glm::mat4> boneTransformsField = fieldModel.getBoneTransforms(0, 0);
 
 		for (unsigned int i = 0; i < boneTransformsField.size(); ++i)
@@ -879,46 +965,6 @@ int main(int argc, char *argv[])
 		}
 
 		fieldModel.draw(sampler, uniModel, glm::mat4(1.0f));
-
-		/*if (displayBobScene)
-		{
-		bobScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
-		}
-		if (displayGirlScene)
-		{
-		girlScene.render(shaderProgramId, sampler, uniModel, setBoneTransforms, runningTime);
-		}*/
-
-		shapeShaderProgram.use();
-		glUniformMatrix4fv(uniViewShape, 1, GL_FALSE, glm::value_ptr(camera.getViewMatrix()));
-		/*glUniform4f(shapeUniColor, 1.0f, 0.0f, 0.0f, 1.0f);
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);*/
-
-		//if (frameCount >= 15)
-		//{
-		//	sampleRect.setWidth(rectWidth);
-		//	if (rectReverse)
-		//	{
-		//		rectWidth -= 1.0f;
-		//	}
-		//	else
-		//	{
-		//		rectWidth += 1.0f;
-		//	}
-		//	if (rectWidth <= 0.0f)
-		//	{
-		//		rectReverse = false;
-		//	}
-		//	if (rectWidth >= 10.0f)
-		//	{
-		//		rectReverse = true;
-		//	}
-		//	frameCount = 0;
-		//}
-		//++frameCount;
-		//sampleRect.draw(shapeUniColor);
 
 		shaderProgram.use();
 
@@ -939,6 +985,11 @@ int main(int argc, char *argv[])
 		const char *fpsString = fpsTemp.c_str();
 		SDL_SetWindowTitle(window, fpsString);
 
+		if (fpsCount % 20 == 0)
+		{
+			lightDirection = lightRotation * lightDirection;
+		}
+
 		++fpsCount;
 
 		SDL_GL_SwapWindow(window);
@@ -950,7 +1001,7 @@ int main(int argc, char *argv[])
 	}
 
 	shaderProgram.cleanup();
-	shapeShaderProgram.cleanup();
+	//shapeShaderProgram.cleanup();
 	textShaderProgram.cleanup();
 
 	glDeleteBuffers(1, &vbo);
@@ -963,6 +1014,7 @@ int main(int argc, char *argv[])
 	//nanoModel.clearGLBuffers();
 	characterTwo.cleanup();
 	characterOne.cleanup();
+	//skybox.cleanup();
 
 	SDL_GL_DeleteContext(context);
 

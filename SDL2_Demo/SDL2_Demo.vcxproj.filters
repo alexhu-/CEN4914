@@ -57,6 +57,9 @@
     <ClCompile Include="PlayerCharacter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="tutorialFragmentShader.txt">
@@ -75,6 +78,12 @@
       <Filter>Source Files</Filter>
     </Text>
     <Text Include="textVertexShader.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="skyboxFragmentShader.txt">
+      <Filter>Source Files</Filter>
+    </Text>
+    <Text Include="skyboxVertexShader.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
@@ -119,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlayerCharacter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
