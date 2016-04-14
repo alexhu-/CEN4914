@@ -45,6 +45,8 @@ public:
 	void rotateZ(float degrees);
 
 	void translateInWorld(float x, float y, float z);
+	void setWorldTranslateMatrix(float x, float y, float z);
+	void setWorldScaleMatrix(float x, float y, float z);
 
 	// Functions to get the model matrix
 	glm::mat4 getModelMatrix();

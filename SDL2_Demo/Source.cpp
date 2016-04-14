@@ -22,6 +22,7 @@
 #include "CharacterData.h"
 #include "CharacterState.h"
 #include "CharacterStateManager.h"
+#include "HitEffect.h"
 #include "Importer.h"
 #include "Model.h"
 #include "PlayerCharacter.h"
@@ -151,14 +152,14 @@ int main(int argc, char *argv[])
 	};
 
 	// Shape shaders
-	/*ShaderProgram shapeShaderProgram(shapeVertexShaderFile, shapeFragmentShaderFile);
+	ShaderProgram shapeShaderProgram(shapeVertexShaderFile, shapeFragmentShaderFile);
 	shapeShaderProgram.compileShaderProgram();
 	GLuint shapeProgramId = shapeShaderProgram.getProgram();
 	shapeShaderProgram.use();
 
 	glBindFragDataLocation(shapeProgramId, 0, "outColor");
 
-	GLint shapeUniColor = glGetUniformLocation(shapeProgramId, "inColor");*/
+	GLint shapeUniColor = glGetUniformLocation(shapeProgramId, "inColor");
 
 	// Compile and setup the text shader
 	printf("Compiling text shaders\n");
@@ -177,7 +178,7 @@ int main(int argc, char *argv[])
 
 	// Load font as face
 	FT_Face face;
-	if (FT_New_Face(ft, "docktrin.ttf", 0, &face))
+	if (FT_New_Face(ft, "arial.ttf", 0, &face))
 		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 
 	// Set size to load glyphs as
@@ -242,8 +243,8 @@ int main(int argc, char *argv[])
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
-	UIRectangle sampleRect(-5.0f, 5.0f, 10.0f, 5.0f, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
-	sampleRect.setZ(-1.0f);
+	UIRectangle sampleRect(-40.0f, 40.0f, 1000.0f, 1000.0f, glm::vec4(0.5f, 0.0f, 0.5f, 1.0f));
+	sampleRect.setZ(0.00001f);
 	sampleRect.setup();
 
 
@@ -273,27 +274,27 @@ int main(int argc, char *argv[])
 	GLuint shininessId = glGetUniformLocation(shaderProgramId, "material_shininess");
 
 
-	// Skybox shaders
-	printf("Compiling skybox shaders\n");
-	ShaderProgram skyboxProgram("skyboxVertexShader.txt", "skyboxFragmentShader.txt");
-	skyboxProgram.compileShaderProgram();
-	GLuint skyboxProgramId = skyboxProgram.getProgram();
-	skyboxProgram.use();
-	GLuint skyboxSampler = glGetUniformLocation(skyboxProgramId, "skybox");
-	GLuint skyboxViewId = glGetUniformLocation(skyboxProgramId, "view");
-	GLuint skyboxProjId = glGetUniformLocation(skyboxProgramId, "proj");
+	//// Skybox shaders
+	//printf("Compiling skybox shaders\n");
+	//ShaderProgram skyboxProgram("skyboxVertexShader.txt", "skyboxFragmentShader.txt");
+	//skyboxProgram.compileShaderProgram();
+	//GLuint skyboxProgramId = skyboxProgram.getProgram();
+	//skyboxProgram.use();
+	//GLuint skyboxSampler = glGetUniformLocation(skyboxProgramId, "skybox");
+	//GLuint skyboxViewId = glGetUniformLocation(skyboxProgramId, "view");
+	//GLuint skyboxProjId = glGetUniformLocation(skyboxProgramId, "proj");
 
-	std::vector<std::string> skyboxFiles =
-	{
-		"Models/lmcity/lmcity_rt.tga",
-		"Models/lmcity/lmcity_lf.tga",
-		"Models/lmcity/lmcity_up.tga",
-		"Models/lmcity/lmcity_dn.tga",
-		"Models/lmcity/lmcity_bk.tga",
-		"Models/lmcity/lmcity_ft.tga",
-	};
-	Skybox skybox(skyboxFiles);
-	skybox.setup();
+	//std::vector<std::string> skyboxFiles =
+	//{
+	//	"Models/lmcity/lmcity_rt.tga",
+	//	"Models/lmcity/lmcity_lf.tga",
+	//	"Models/lmcity/lmcity_up.tga",
+	//	"Models/lmcity/lmcity_dn.tga",
+	//	"Models/lmcity/lmcity_bk.tga",
+	//	"Models/lmcity/lmcity_ft.tga",
+	//};
+	//Skybox skybox(skyboxFiles);
+	//skybox.setup();
 
 	shaderProgram.use();
 
@@ -323,13 +324,26 @@ int main(int argc, char *argv[])
 	characterOneModel.rotateY(90.0f);
 	characterOne.translateCharacter(-1.25f, 0.0f, 0.0f);
 
-	std::string fieldPath("C:\\Users\\Alex Hu\\Documents\\Model\\Field\\field.obj");
-	std::string fieldTexture("C:\\Users\\Alex Hu\\Documents\\Model\\Field");
-	Model fieldModel = Importer::loadModel(fieldPath, fieldTexture);
-	fieldModel.setup();
-	fieldModel.scale(2.5f, 2.5f, 2.5f);
-	fieldModel.translate(0.0f, 0.0f, -1.0f);
-	fieldModel.rotateY(180.0f);
+	//std::string fieldPath("Models\\field.obj");
+	//std::string fieldTexture("Models");
+	//Model fieldModel = Importer::loadModel(fieldPath, fieldTexture);
+	//fieldModel.setup();
+	//fieldModel.scale(2.5f, 2.5f, 2.5f);
+	//fieldModel.translate(0.0f, 0.0f, -1.0f);
+	//fieldModel.rotateY(180.0f);
+
+	std::string hitPath("Models\\ring\\red_ring.obj");
+	std::string hitTexture("Models\\ring");
+	Model redRing = Importer::loadModel(hitPath, hitTexture);
+	HitEffect hitEffect(&redRing);
+	hitEffect.setTime(100);
+
+	std::string blockPath("Models\\ring\\blue_ring.obj");
+	std::string blockTexture("Models\\ring");
+	Model blueRing = Importer::loadModel(blockPath, blockTexture);
+	HitEffect blockEffect(&blueRing);
+	blockEffect.setTime(100);
+
 
 	/*
 	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
@@ -381,14 +395,14 @@ int main(int argc, char *argv[])
 	glUniformMatrix4fv(uniProj, 1, GL_FALSE, glm::value_ptr(proj));
 
 
-	/*shapeShaderProgram.use();
+	shapeShaderProgram.use();
 
 	GLint uniModelShape = glGetUniformLocation(shapeProgramId, "model");
 	glUniformMatrix4fv(uniModelShape, 1, GL_FALSE, glm::value_ptr(model));
 	GLint uniViewShape = glGetUniformLocation(shapeProgramId, "view");
 	glUniformMatrix4fv(uniViewShape, 1, GL_FALSE, glm::value_ptr(view));
 	GLint uniProjShape = glGetUniformLocation(shapeProgramId, "proj");
-	glUniformMatrix4fv(uniProjShape, 1, GL_FALSE, glm::value_ptr(proj));*/
+	glUniformMatrix4fv(uniProjShape, 1, GL_FALSE, glm::value_ptr(proj));
 
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
@@ -434,6 +448,8 @@ int main(int argc, char *argv[])
 	int actionDuration = 0;
 	unsigned int controllerInputs = 0;
 	unsigned int controller2Inputs = 0;
+	int axisMax = 32767;
+	int axisThreshold = axisMax * 1 / 3;
 	float cameraCapturePoint = 0.0f;
 
 	unsigned int currentFrame = 0;
@@ -448,10 +464,13 @@ int main(int argc, char *argv[])
 	std::string inputCounter;
 	inputCounter = "Input counts: ";
 	SDL_Event windowEvent;
+	bool alan = false;
+	bool mainMenu = false;
+	bool characterFlip = false;
 	bool isRunning = true;
 	while (isRunning)
 	{
-		if (SDL_PollEvent(&windowEvent))
+		while (SDL_PollEvent(&windowEvent))
 		{
 			if ((windowEvent.type == SDL_QUIT) || (windowEvent.type == SDL_KEYUP && windowEvent.key.keysym.sym == SDLK_ESCAPE))
 			{
@@ -728,62 +747,163 @@ int main(int argc, char *argv[])
 				printf("JOY DEVICE REMOVED\n");
 			}
 
-			/*if ((windowEvent.type == SDL_JOYHATMOTION))
+			if (windowEvent.type == SDL_JOYAXISMOTION && windowEvent.jaxis.which == 0)
 			{
-			//printf("JOY HAT MOTION!!!!\n");
-			if (windowEvent.jhat.value & SDL_HAT_UP)
-			{
-			currentFrame = 15;
-			controllerDirection = 8;
-			myModel.setAnimationIndex(currentFrame);
+				if (windowEvent.jaxis.axis == 0) // x axis
+				{
+					if (windowEvent.jaxis.value < -axisThreshold) // left
+					{
+						controller2Inputs |= GameInput::INPUT_LEFT;
+					}
+					else if (windowEvent.jaxis.value > axisThreshold) // right
+					{
+						controller2Inputs |= GameInput::INPUT_RIGHT;
+					}
+					else
+					{
+						controller2Inputs &= ~GameInput::INPUT_LEFT;
+						controller2Inputs &= ~GameInput::INPUT_RIGHT;
+					}
+				}
+
+				if (windowEvent.jaxis.axis == 1) // y axis
+				{
+					if (windowEvent.jaxis.value < -axisThreshold) // up
+					{
+						controller2Inputs |= GameInput::INPUT_UP;
+					}
+					else if (windowEvent.jaxis.value > axisThreshold) // down
+					{
+						controller2Inputs |= GameInput::INPUT_DOWN;
+					}
+					else
+					{
+						controller2Inputs &= ~GameInput::INPUT_UP;
+						controller2Inputs &= ~GameInput::INPUT_DOWN;
+					}
+				}
 			}
 
-			if (windowEvent.jhat.value & SDL_HAT_DOWN)
+			if (windowEvent.type == SDL_JOYBUTTONDOWN && windowEvent.jaxis.which == 0)
 			{
-			currentFrame = 16;
-			controllerDirection = 4;
-			myModel.setAnimationIndex(currentFrame);
+				switch (windowEvent.jbutton.button)
+				{
+				case SDL_CONTROLLER_BUTTON_A:
+					controller2Inputs |= GameInput::INPUT_KICK1;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					controller2Inputs |= GameInput::INPUT_KICK2;
+					break;
+				case SDL_CONTROLLER_BUTTON_X:
+					controller2Inputs |= GameInput::INPUT_PUNCH1;
+					break;
+				case SDL_CONTROLLER_BUTTON_Y:
+					controller2Inputs |= GameInput::INPUT_PUNCH2;
+					break;
+				default:
+					break;
+				}
 			}
 
-			if (windowEvent.jhat.value & SDL_HAT_RIGHT)
+			if (windowEvent.type == SDL_JOYBUTTONUP && windowEvent.jaxis.which == 0)
 			{
-			controllerDirection = 0;
-			currentFrame = 13;
-			myModel.setAnimationIndex(currentFrame);
+				switch (windowEvent.jbutton.button)
+				{
+				case SDL_CONTROLLER_BUTTON_A:
+					controller2Inputs &= ~GameInput::INPUT_KICK1;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					controller2Inputs &= ~GameInput::INPUT_KICK2;
+					break;
+				case SDL_CONTROLLER_BUTTON_X:
+					controller2Inputs &= ~GameInput::INPUT_PUNCH1;
+					break;
+				case SDL_CONTROLLER_BUTTON_Y:
+					controller2Inputs &= ~GameInput::INPUT_PUNCH2;
+					break;
+				default:
+					break;
+				}
 			}
 
-			if (windowEvent.jhat.value & SDL_HAT_LEFT)
+			if (windowEvent.type == SDL_JOYAXISMOTION && windowEvent.jaxis.which == 1)
 			{
-			controllerDirection = 0;
-			currentFrame = 14;
-			myModel.setAnimationIndex(currentFrame);
-			}
-			}*/
+				if (windowEvent.jaxis.axis == 0) // x axis
+				{
+					if (windowEvent.jaxis.value < -axisThreshold) // left
+					{
+						controllerInputs |= GameInput::INPUT_LEFT;
+					}
+					else if (windowEvent.jaxis.value > axisThreshold) // right
+					{
+						controllerInputs |= GameInput::INPUT_RIGHT;
+					}
+					else
+					{
+						controllerInputs &= ~GameInput::INPUT_LEFT;
+						controllerInputs &= ~GameInput::INPUT_RIGHT;
+					}
+				}
 
-			/*if (windowEvent.type == SDL_JOYBUTTONDOWN)
-			{
-			switch (windowEvent.jbutton.button)
-			{
-			case SDL_CONTROLLER_BUTTON_A :
-			currentFrame = 0 + controllerDirection;
-			myModel.setAnimationIndex(currentFrame);
-			break;
-			case SDL_CONTROLLER_BUTTON_B:
-			currentFrame = 1 + controllerDirection;
-			myModel.setAnimationIndex(currentFrame);
-			break;
-			case SDL_CONTROLLER_BUTTON_X:
-			currentFrame = 2 + controllerDirection;
-			myModel.setAnimationIndex(currentFrame);
-			break;
-			case SDL_CONTROLLER_BUTTON_Y:
-			currentFrame = 3 + controllerDirection;
-			myModel.setAnimationIndex(currentFrame);
-			break;
-			default:
-			break;
+				if (windowEvent.jaxis.axis == 1) // y axis
+				{
+					if (windowEvent.jaxis.value < -axisThreshold) // up
+					{
+						controllerInputs |= GameInput::INPUT_UP;
+					}
+					else if (windowEvent.jaxis.value > axisThreshold) // down
+					{
+						controllerInputs |= GameInput::INPUT_DOWN;
+					}
+					else
+					{
+						controllerInputs &= ~GameInput::INPUT_UP;
+						controllerInputs &= ~GameInput::INPUT_DOWN;
+					}
+				}
 			}
-			}*/
+
+			if (windowEvent.type == SDL_JOYBUTTONDOWN && windowEvent.jaxis.which == 1)
+			{
+				switch (windowEvent.jbutton.button)
+				{
+				case SDL_CONTROLLER_BUTTON_A:
+					controllerInputs |= GameInput::INPUT_KICK1;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					controllerInputs |= GameInput::INPUT_KICK2;
+					break;
+				case SDL_CONTROLLER_BUTTON_X:
+					controllerInputs |= GameInput::INPUT_PUNCH1;
+					break;
+				case SDL_CONTROLLER_BUTTON_Y:
+					controllerInputs |= GameInput::INPUT_PUNCH2;
+					break;
+				default:
+					break;
+				}
+			}
+
+			if (windowEvent.type == SDL_JOYBUTTONUP && windowEvent.jaxis.which == 1)
+			{
+				switch (windowEvent.jbutton.button)
+				{
+				case SDL_CONTROLLER_BUTTON_A:
+					controllerInputs &= ~GameInput::INPUT_KICK1;
+					break;
+				case SDL_CONTROLLER_BUTTON_B:
+					controllerInputs &= ~GameInput::INPUT_KICK2;
+					break;
+				case SDL_CONTROLLER_BUTTON_X:
+					controllerInputs &= ~GameInput::INPUT_PUNCH1;
+					break;
+				case SDL_CONTROLLER_BUTTON_Y:
+					controllerInputs &= ~GameInput::INPUT_PUNCH2;
+					break;
+				default:
+					break;
+				}
+			}
 
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_m))
 			{
@@ -792,6 +912,15 @@ int main(int argc, char *argv[])
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_n))
 			{
 				characterOne.setEventKnockdown();
+			}
+					
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_b))
+			{
+				printf("Status: %s Action: %s posdiff: %f\n", characterOne.getStatusName(), characterOne.getActionName(), characterOne.getX() - characterTwo.getX());
+			}
+			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_c))
+			{
+				alan = !alan;
 			}
 		}
 
@@ -805,16 +934,48 @@ int main(int argc, char *argv[])
 		// if negative, check to see if distance is greater than negative maxDistance
 		bool canMoveBackwards = (distanceBetweenPlayers >= 0) ? (distanceBetweenPlayers < maxDistance) : (distanceBetweenPlayers > -1.0 * maxDistance);
 
+		if (characterFlip && player1x < player2x)
+		{
+			characterOneModel.rotateY(180.0f);
+			characterTwoModel.rotateY(180.0f);
+			characterFlip = false;
+			characterOne.swapDirections();
+			characterTwo.swapDirections();
+		}
+
+		if (!characterFlip && player1x > player2x)
+		{
+			characterOneModel.rotateY(180.0f);
+			characterTwoModel.rotateY(180.0f);
+			characterFlip = true;
+			characterOne.swapDirections();
+			characterTwo.swapDirections();
+		}
+
 
 		characterTwo.setInputs(controllerInputs);
 		characterTwo.updateState();
-		if (canMoveBackwards)
+		if (!characterFlip)
 		{
-			characterTwo.updatePosition(-0.02f, -0.015f, 0.08f, -0.04f, -0.04f);
+			if (canMoveBackwards)
+			{
+				characterTwo.updatePosition(-0.02f, -0.015f, 0.08f, -0.04f, -0.04f);
+			}
+			else
+			{
+				characterTwo.updatePosition(-0.02f, 0.0f, 0.08f, -0.04f, 0.0f);
+			}
 		}
 		else
 		{
-			characterTwo.updatePosition(-0.02f, 0.0f, 0.08f, -0.04f, 0.0f);
+			if (canMoveBackwards)
+			{
+				characterTwo.updatePosition(0.02f, 0.015f, 0.08f, 0.04f, 0.04f);
+			}
+			else
+			{
+				characterTwo.updatePosition(0.02f, 0.0f, 0.08f, 0.04f, 0.0f);
+			}
 		}
 		if (characterTwo.shouldChangeAnimation())
 		{
@@ -824,19 +985,35 @@ int main(int argc, char *argv[])
 
 		characterOne.setInputs(controller2Inputs);
 		characterOne.updateState();
-		if (canMoveBackwards)
+		if (!characterFlip)
 		{
-			characterOne.updatePosition(0.02f, 0.015f, 0.08f, 0.04f, 0.04f);
+			if (canMoveBackwards)
+			{
+				characterOne.updatePosition(0.02f, 0.015f, 0.08f, 0.04f, 0.04f);
+			}
+			else
+			{
+				characterOne.updatePosition(0.02f, 0.0f, 0.08f, 0.04f, 0.0f);
+			}
 		}
 		else
 		{
-			characterOne.updatePosition(0.02f, 0.0f, 0.08f, 0.04f, 0.0f);
+			if (canMoveBackwards)
+			{
+				characterOne.updatePosition(-0.02f, -0.015f, 0.08f, -0.04f, -0.04f);
+			}
+			else
+			{
+				characterOne.updatePosition(-0.02f, 0.0f, 0.08f, -0.04f, 0.0f);
+			}
 		}
 		if (characterOne.shouldChangeAnimation())
 		{
 			characterOneData.setAnimationIndex(characterOne.getMoveSet());
 		}
 		characterOne.setInputs(GameInput::INPUT_NONE);
+
+
 
 		glm::vec3 cameraPosition = camera.getPosition();
 	
@@ -848,7 +1025,45 @@ int main(int argc, char *argv[])
 		{
 			distanceBetweenPlayers *= -1.0f;
 		}
+		Status oneStatus = characterOne.getStatus();
 
+		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH1 && distanceBetweenPlayers < .9f)
+		{
+			characterTwo.setEventHit(30, 60, 20);
+			characterTwo.reduceHealth(1);
+		}
+
+		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 0 && distanceBetweenPlayers < 1.0f)
+		{
+			characterTwo.setEventHit(30, 60, 20);
+			characterTwo.reduceHealth(1);
+		}
+		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 0.8f)
+		{
+			characterTwo.setEventHit(30, 60, 20);
+			characterTwo.reduceHealth(1);
+		}
+		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f)
+		{
+			characterTwo.setEventHit(30, 60, 20);
+			characterTwo.reduceHealth(1);
+		}
+
+		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK1 && distanceBetweenPlayers < .9f)
+		{
+			characterTwo.setEventHit(30, 60, 20);
+		}
+
+		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && distanceBetweenPlayers < 1.3f)
+		{
+			characterTwo.setEventHit(30, 60, 20);
+		}
+		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 1.0f)
+		{
+			characterTwo.setEventKnockdown();
+		}
+
+		
 		// Camera should zoom in when the players get close to each other
 		// camera should zoom less if the players a little further away
 		// camera should zoom out if the players are than a certain distance away
@@ -901,20 +1116,41 @@ int main(int argc, char *argv[])
 		glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// render text
-		RenderText(textShaderProgram, inputCounter, 300.0f, 340.0f, 0.5f, glm::vec3(0.5, 0.8f, 0.2f), vao, vbo);
-		RenderText(textShaderProgram, "Player 2 Text", 600.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
-		RenderText(textShaderProgram, "Player 1 TextOH JUST TESTING IF LONG TEXT IS BAD IDK LOL", 25.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
+		unsigned int runningTime = SDL_GetTicks() - startTime;
+		timeInMs = 16.66667f;
 
-		glDepthMask(GL_FALSE);
-		skyboxProgram.use();
-		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.getViewMatrix()));	// Remove any translation component of the view matrix
-		skyboxView[3][1] = 0.5f;
-		glm::mat4 skyboxProj = glm::perspective(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
-		glUniformMatrix4fv(skyboxViewId, 1, GL_FALSE, glm::value_ptr(skyboxView));
-		glUniformMatrix4fv(skyboxProjId, 1, GL_FALSE, glm::value_ptr(skyboxProj));
-		skybox.draw(skyboxSampler);
-		glDepthMask(GL_TRUE);
+		// render text
+		std::string p2health = std::to_string(characterTwo.getHealth());
+		std::string p1health = std::to_string(characterOne.getHealth());
+
+
+		RenderText(textShaderProgram, p2health, WINDOW_WIDTH-70, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
+		RenderText(textShaderProgram, p1health, 25.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
+		
+			if (runningTime < 2500)
+			{
+				RenderText(textShaderProgram, "Ready!", (WINDOW_WIDTH / 2) - 50.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
+			}
+
+		
+
+		if (characterOne.getHealth() <= 0)
+		{
+			RenderText(textShaderProgram, "Player 2 Wins", 300.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
+		}
+		if (characterTwo.getHealth() <= 0)
+		{
+			RenderText(textShaderProgram, "Player 1 Wins", 300.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
+		}
+		//glDepthMask(GL_FALSE);
+		//skyboxProgram.use();
+		//glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.getViewMatrix()));	// Remove any translation component of the view matrix
+		//skyboxView[3][1] = 0.5f;
+		//glm::mat4 skyboxProj = glm::perspective(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+		//glUniformMatrix4fv(skyboxViewId, 1, GL_FALSE, glm::value_ptr(skyboxView));
+		//glUniformMatrix4fv(skyboxProjId, 1, GL_FALSE, glm::value_ptr(skyboxProj));
+		//skybox.draw(skyboxSampler);
+		//glDepthMask(GL_TRUE);
 
 		shaderProgram.use();
 		glUniform3f(eyeId, cameraPosition.x, cameraPosition.y, cameraPosition.z);
@@ -925,47 +1161,46 @@ int main(int argc, char *argv[])
 		glUniform3f(lightDirectionId, lightDirection.x, lightDirection.y, lightDirection.z);
 		glUniform1f(shininessId, shinyModel);
 
-		unsigned int runningTime = SDL_GetTicks() - startTime;
-		timeInMs = 16.66667f;
-		std::vector<glm::mat4> boneTransforms = characterTwo.getBoneTransforms(characterTwoData.getAnimationTime((float)timeInMs));
+		//unsigned int runningTime = SDL_GetTicks() - startTime;
+		//timeInMs = 16.66667f;
+			std::vector<glm::mat4> boneTransforms = characterTwo.getBoneTransforms(characterTwoData.getAnimationTime((float)timeInMs));
 
-		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
-		{
-			if (i < 100)
+			for (unsigned int i = 0; i < boneTransforms.size(); ++i)
 			{
-				setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
+				if (i < 100)
+				{
+					setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
+				}
 			}
-		}
 
-		characterTwo.draw(sampler, uniModel);
+			characterTwo.draw(sampler, uniModel);
 
-		std::vector<glm::mat4> boneTransforms2 = characterOne.getBoneTransforms(characterOneData.getAnimationTime((float)timeInMs));
+			std::vector<glm::mat4> boneTransforms2 = characterOne.getBoneTransforms(characterOneData.getAnimationTime((float)timeInMs));
 
-		for (unsigned int i = 0; i < boneTransforms2.size(); ++i)
-		{
-			if (i < 100)
+			for (unsigned int i = 0; i < boneTransforms2.size(); ++i)
 			{
-				setBoneTransforms(shaderProgramId, i, boneTransforms2[i]);
+				if (i < 100)
+				{
+					setBoneTransforms(shaderProgramId, i, boneTransforms2[i]);
+				}
 			}
-		}
 
-		characterOne.draw(sampler, uniModel);
+			characterOne.draw(sampler, uniModel);
 
-		glUniform3f(lightColorId, lightColorField.x, lightColorField.y, lightColorField.z);
-		glUniform1f(shininessId, shinyField);
+			glUniform3f(lightColorId, lightColorField.x, lightColorField.y, lightColorField.z);
+			glUniform1f(shininessId, shinyField);
 
-		std::vector<glm::mat4> boneTransformsField = fieldModel.getBoneTransforms(0, 0);
+			//std::vector<glm::mat4> boneTransformsField = fieldModel.getBoneTransforms(0, 0);
 
-		for (unsigned int i = 0; i < boneTransformsField.size(); ++i)
-		{
-			if (i < 100)
-			{
-				setBoneTransforms(shaderProgramId, i, boneTransformsField[i]);
-			}
-		}
+			//for (unsigned int i = 0; i < boneTransformsField.size(); ++i)
+			//{
+			//	if (i < 100)
+			//	{
+			//		setBoneTransforms(shaderProgramId, i, boneTransformsField[i]);
+			//	}
+			//}
 
-		fieldModel.draw(sampler, uniModel, glm::mat4(1.0f));
-
+			//fieldModel.draw(sampler, uniModel, glm::mat4(1.0f));
 		shaderProgram.use();
 
 		unsigned int currTime = SDL_GetTicks();
@@ -1015,6 +1250,8 @@ int main(int argc, char *argv[])
 	characterTwo.cleanup();
 	characterOne.cleanup();
 	//skybox.cleanup();
+	redRing.clearGLBuffers();
+	blueRing.clearGLBuffers();
 
 	SDL_GL_DeleteContext(context);
 

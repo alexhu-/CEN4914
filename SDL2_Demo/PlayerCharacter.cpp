@@ -155,3 +155,55 @@ void PlayerCharacter::swapDirections()
 {
 	mStateManager.swapDirections();
 }
+
+const char* PlayerCharacter::getStatusName()
+{
+	Status mStatus = mStateManager.getStatus();
+	switch (mStatus)
+	{
+	case STATUS_ACTIVE: return "active";
+	case STATUS_RECOVERY: return "recovery";
+	case STATUS_STARTUP: return "startup";
+	case STATUS_NONE: return "none";
+	}
+}
+Status PlayerCharacter::getStatus()
+{
+	return mStateManager.getStatus();
+}
+Action PlayerCharacter::getAction()
+{
+	return mStateManager.getAction();
+}
+const char* PlayerCharacter::getActionName()
+{
+	Action mAction = mStateManager.getAction();
+	switch (mAction)
+	{
+	case ACTION_NONE: return "none";
+	case ACTION_BLOCK: return "block";
+	case ACTION_HIT: return "hit";
+	case ACTION_KNOCKDOWN: return "knockdown";
+	case ACTION_PUNCH1: return "punch1";
+	case ACTION_PUNCH2: return "punch2";
+	case ACTION_KICK1: return "kick1";
+	case ACTION_KICK2: return "kick2";
+	}
+}
+VerticalDirection PlayerCharacter::getVerticalDirection() 
+{
+	return mStateManager.getVerticalDirection();
+}
+
+int PlayerCharacter::getHealth()
+{
+	
+	if (health <= 0)
+		return 0;
+	else { return health; }
+}
+
+void PlayerCharacter::reduceHealth(int damage)
+{
+	health -= damage;
+}

@@ -292,6 +292,19 @@ void Model::translateInWorld(float x, float y, float z)
 	mWorldModelMatrix = glm::translate(mWorldModelMatrix, glm::vec3(x, y, z));
 }
 
+void Model::setWorldTranslateMatrix(float x, float y, float z)
+{
+	mWorldModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+}
+
+// WARNING: rotation in mWorldModelMatrix will break this!
+void Model::setWorldScaleMatrix(float x, float y, float z)
+{
+	mWorldModelMatrix[0][0] = x;
+	mWorldModelMatrix[1][1] = y;
+	mWorldModelMatrix[2][2] = z;
+}
+
 glm::mat4 Model::getModelMatrix()
 {
 	/*glm::mat4 result(1.0f);

@@ -48,6 +48,9 @@ public:
 
 	bool displayMoveSet;
 
+	Status getStatus();
+	Action getAction();
+	VerticalDirection getVerticalDirection();
 private:
 	//void updateJump(bool isJumping, unsigned int stateTime);
 	//void updateAttack(bool canAttack, VerticalDirection verticalState);

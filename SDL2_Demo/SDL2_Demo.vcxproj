@@ -69,8 +69,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL2_mixer-2.0.1\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\src;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\include;C:\Users\Alex Hu\Documents\Visual Studio 2015\glm\;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\include\;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\SDL2;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL2_mixer-2.0.1\lib\x86;C:\Users\Alex Hu\Documents\Visual Studio 2015\freetype-2.6.3\objs\vc2010\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\Simple OpenGL Image Library\projects\VC9\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\assimp-master\lib\Debug;C:\Users\Alex Hu\Documents\Visual Studio 2015\glew-1.13.0\lib\Release\Win32;C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\vslib\SDL2_mixer-2.0.1\include;C:\vslib\freetype-2.6.3\include;C:\vslib\assimp-master\include;C:\vslib\Simple OpenGL Image Library\src;C:\vslib\SDL2-2.0.4\include;C:\vslib\glm-0.9.7.2\glm;C:\vslib\glew-1.13.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\vslib\SDL2_mixer-2.0.1\lib\x86;C:\vslib\freetype-2.6.3\objs\vc2010\Win32;C:\vslib\Simple OpenGL Image Library\projects\VC9\Debug;C:\vslib\SDL2-2.0.4\lib\x86;C:\vslib\glew-1.13.0\lib\Release\Win32;C:\vslib\assimp-master\lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>C:\Users\Alex Hu\Documents\Visual Studio 2015\SDL\lib\win32;$(LibraryPath)</LibraryPath>
@@ -80,10 +80,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freetype263d.lib;SDL2_mixer.lib;glew32s.lib;opengl32.lib;SDL2Main.lib;SDL2.lib;assimp-vc140-mtd.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2_mixer.lib;freetype263d.lib;glew32s.lib;opengl32.lib;SDL2Main.lib;SDL2.lib;assimp-vc140-mtd.lib;SOIL.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
@@ -131,58 +132,44 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="PlayerCharacter.cpp" />
     <ClCompile Include="CharacterData.cpp" />
     <ClCompile Include="CharacterState.cpp" />
     <ClCompile Include="CharacterStateManager.cpp" />
+    <ClCompile Include="HitEffect.cpp" />
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
-    <ClCompile Include="MyAnimatedMeshClass.cpp" />
+    <ClCompile Include="PlayerCharacter.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="MyAnimatedMeshClass.cpp" />
     <ClCompile Include="UIRectangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="skyboxFragmentShader.txt" />
-    <Text Include="skyboxVertexShader.txt" />
     <Text Include="textFragmentShader.txt" />
     <Text Include="textVertexShader.txt" />
     <Text Include="tutorialFragmentShader.txt" />
     <Text Include="tutorialVertexShader.txt" />
-    <Text Include="UIFragmentShader.txt" />
-    <Text Include="UIVertexShader.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="PlayerCharacter.h" />
     <ClInclude Include="CharacterData.h" />
     <ClInclude Include="CharacterState.h" />
     <ClInclude Include="CharacterStateManager.h" />
+    <ClInclude Include="HitEffect.h" />
+    <ClInclude Include="MyAnimatedMeshClass.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="ModelData.h" />
-    <ClInclude Include="MyAnimatedMeshClass.h" />
+    <ClInclude Include="PlayerCharacter.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="UIRectangle.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Models\Body_Mesh_Rigged.fbx" />
-    <None Include="Models\field.mtl" />
-    <None Include="Models\tree.mtl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Models\ac.PNG" />
-    <Image Include="Models\grass_grass_0127_01_s.tga" />
-    <Image Include="Models\red.tga" />
-    <Image Include="Models\screen.PNG" />
-    <Image Include="Models\tr.PNG" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

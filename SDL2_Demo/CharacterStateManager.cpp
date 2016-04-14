@@ -517,4 +517,28 @@ void CharacterStateManager::swapDirections()
 	GameInput temp = mForwardDirection;
 	mForwardDirection = mBackwardDirection;
 	mBackwardDirection = temp;
+	HorizontalDirection horizontalDir = mState.getHorizontalDirection();
+	if (horizontalDir == HorizontalDirection::HDIRECTION_FORWARD)
+	{
+		mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_BACKWARD);
+	}
+	else if (horizontalDir == HorizontalDirection::HDIRECTION_BACKWARD)
+	{
+		mState.setHorizontalDirection(HorizontalDirection::HDIRECTION_FORWARD);
+	}
+}
+
+Status CharacterStateManager::getStatus()
+{
+	return mState.getStatus();
+}
+
+Action CharacterStateManager::getAction()
+{
+	return mState.getAction();
+}
+
+VerticalDirection CharacterStateManager::getVerticalDirection()
+{
+	return mState.getVerticalDirection();
 }

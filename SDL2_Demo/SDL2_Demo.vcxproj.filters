@@ -27,10 +27,10 @@
     <ClCompile Include="Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Importer.cpp">
+    <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="Importer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp">
@@ -45,19 +45,22 @@
     <ClCompile Include="MyAnimatedMeshClass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CharacterData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CharacterState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CharacterStateManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CharacterData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="PlayerCharacter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HitEffect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,22 +71,10 @@
     <Text Include="tutorialVertexShader.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="UIFragmentShader.txt">
-      <Filter>Source Files</Filter>
-    </Text>
-    <Text Include="UIVertexShader.txt">
-      <Filter>Source Files</Filter>
-    </Text>
-    <Text Include="textFragmentShader.txt">
-      <Filter>Source Files</Filter>
-    </Text>
     <Text Include="textVertexShader.txt">
       <Filter>Source Files</Filter>
     </Text>
-    <Text Include="skyboxFragmentShader.txt">
-      <Filter>Source Files</Filter>
-    </Text>
-    <Text Include="skyboxVertexShader.txt">
+    <Text Include="textFragmentShader.txt">
       <Filter>Source Files</Filter>
     </Text>
   </ItemGroup>
@@ -100,10 +91,10 @@
     <ClInclude Include="Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ModelData.h">
+    <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="ModelData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderProgram.h">
@@ -118,10 +109,10 @@
     <ClInclude Include="MyAnimatedMeshClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CharacterState.h">
+    <ClInclude Include="CharacterStateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CharacterStateManager.h">
+    <ClInclude Include="CharacterState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CharacterData.h">
@@ -133,33 +124,8 @@
     <ClInclude Include="Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Models\Body_Mesh_Rigged.fbx">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Models\field.mtl">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="Models\tree.mtl">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Models\red.tga">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Models\ac.PNG">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Models\grass_grass_0127_01_s.tga">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Models\screen.PNG">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Models\tr.PNG">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <ClInclude Include="HitEffect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

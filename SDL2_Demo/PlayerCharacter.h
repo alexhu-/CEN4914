@@ -29,6 +29,13 @@ public:
 
 	void setDisplayMoveSetOn();
 
+	const char* getStatusName();
+	Status getStatus();
+	Action getAction();
+	const char* getActionName();
+	VerticalDirection getVerticalDirection();
+	int getHealth();
+	void reduceHealth(int damage);
 private:
 	CharacterData* mData;
 	CharacterStateManager mStateManager;
@@ -37,4 +44,6 @@ private:
 	float mPositionx;
 	float mPositiony;
 	float mPositionz;
+
+	int health = 30;
 };
