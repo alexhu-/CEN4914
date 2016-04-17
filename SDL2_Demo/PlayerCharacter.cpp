@@ -139,6 +139,32 @@ void PlayerCharacter::setEventHit(unsigned int hitstun, unsigned int jumphitstun
 	}
 }
 
+void PlayerCharacter::setEventHitLow(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun)
+{
+	mStateManager.setGameEvent(GameEvent::EVENT_HIT_LOW);
+	if (mStateManager.getState().getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+	{
+		mStateManager.setHitTimer(jumphitstun, blockstun);
+	}
+	else
+	{
+		mStateManager.setHitTimer(hitstun, blockstun);
+	}
+}
+
+void PlayerCharacter::setEventHitHigh(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun)
+{
+	mStateManager.setGameEvent(GameEvent::EVENT_HIT_HIGH);
+	if (mStateManager.getState().getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP)
+	{
+		mStateManager.setHitTimer(jumphitstun, blockstun);
+	}
+	else
+	{
+		mStateManager.setHitTimer(hitstun, blockstun);
+	}
+}
+
 void PlayerCharacter::setDisplayMoveSetOn()
 {
 	mStateManager.displayMoveSet = true;
