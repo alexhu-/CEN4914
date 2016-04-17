@@ -24,6 +24,8 @@ public:
 	void updatePosition(float forwardSpeed, float backwardSpeed, float jumpUpwardSpeed, float jumpForwardSpeed, float jumpBackwardSpeed);
 	bool shouldChangeAnimation();
 	void setEventHit(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun);
+	void setEventHitLow(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun);
+	void setEventHitHigh(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun);
 	void setEventKnockdown();
 	void swapDirections();
 	unsigned int getStateTime();
