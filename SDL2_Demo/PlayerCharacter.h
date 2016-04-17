@@ -26,6 +26,9 @@ public:
 	void setEventHit(unsigned int hitstun, unsigned int jumphitstun, unsigned int blockstun);
 	void setEventKnockdown();
 	void swapDirections();
+	unsigned int getStateTime();
+	void setIsHit(bool isHit);
+	bool getIsHit();
 
 	void setDisplayMoveSetOn();
 
@@ -45,5 +48,7 @@ private:
 	float mPositiony;
 	float mPositionz;
 
-	int health = 30;
+	int health = 100;
+	
+	bool isHit;
 };
