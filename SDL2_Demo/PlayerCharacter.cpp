@@ -6,7 +6,9 @@ PlayerCharacter::PlayerCharacter(CharacterData* data, Model* model) :
 	mStateManager(CharacterStateManager(mData)),
 	mPositionx(0.0f),
 	mPositiony(0.0f),
-	mPositionz(0.0f)
+	mPositionz(0.0f),
+	health(100),
+	isHit(false)
 {
 
 }
@@ -206,4 +208,19 @@ int PlayerCharacter::getHealth()
 void PlayerCharacter::reduceHealth(int damage)
 {
 	health -= damage;
+}
+
+unsigned int PlayerCharacter::getStateTime()
+{
+	return mStateManager.getStateTime();
+}
+
+void PlayerCharacter::setIsHit(bool isHit)
+{
+	this->isHit = isHit;
+}
+
+bool PlayerCharacter::getIsHit()
+{
+	return isHit;
 }
