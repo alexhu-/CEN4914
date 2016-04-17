@@ -274,40 +274,36 @@ int main(int argc, char *argv[])
 	GLuint shininessId = glGetUniformLocation(shaderProgramId, "material_shininess");
 
 
-	//// Skybox shaders
-	//printf("Compiling skybox shaders\n");
-	//ShaderProgram skyboxProgram("skyboxVertexShader.txt", "skyboxFragmentShader.txt");
-	//skyboxProgram.compileShaderProgram();
-	//GLuint skyboxProgramId = skyboxProgram.getProgram();
-	//skyboxProgram.use();
-	//GLuint skyboxSampler = glGetUniformLocation(skyboxProgramId, "skybox");
-	//GLuint skyboxViewId = glGetUniformLocation(skyboxProgramId, "view");
-	//GLuint skyboxProjId = glGetUniformLocation(skyboxProgramId, "proj");
+	// Skybox shaders
+	printf("Compiling skybox shaders\n");
+	ShaderProgram skyboxProgram("skyboxVertexShader.txt", "skyboxFragmentShader.txt");
+	skyboxProgram.compileShaderProgram();
+	GLuint skyboxProgramId = skyboxProgram.getProgram();
+	skyboxProgram.use();
+	GLuint skyboxSampler = glGetUniformLocation(skyboxProgramId, "skybox");
+	GLuint skyboxViewId = glGetUniformLocation(skyboxProgramId, "view");
+	GLuint skyboxProjId = glGetUniformLocation(skyboxProgramId, "proj");
 
-	//std::vector<std::string> skyboxFiles =
-	//{
-	//	"Models/lmcity/lmcity_rt.tga",
-	//	"Models/lmcity/lmcity_lf.tga",
-	//	"Models/lmcity/lmcity_up.tga",
-	//	"Models/lmcity/lmcity_dn.tga",
-	//	"Models/lmcity/lmcity_bk.tga",
-	//	"Models/lmcity/lmcity_ft.tga",
-	//};
-	//Skybox skybox(skyboxFiles);
-	//skybox.setup();
+	std::vector<std::string> skyboxFiles =
+	{
+		"Models/lmcity/lmcity_rt.tga",
+		"Models/lmcity/lmcity_lf.tga",
+		"Models/lmcity/lmcity_up.tga",
+		"Models/lmcity/lmcity_dn.tga",
+		"Models/lmcity/lmcity_bk.tga",
+		"Models/lmcity/lmcity_ft.tga",
+	};
+	Skybox skybox(skyboxFiles);
+	skybox.setup();
 
 	shaderProgram.use();
 
 	// assimp stuff
 
-
-	//std::string nanopath("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file2\\Body_Mesh_Rigged.fbx");
-	std::string nanopath("Models\\Body_Mesh_Rigged.fbx");
-	//std::string nanotexture("C:\\Users\\Alex Hu\\Desktop\\Downloads\\po7q2ieuk3r4-Body_Mesh_Rigged\\file2");
-	std::string nanotexture("Models");
-
+	std::string blueplayerPath("Models\\Body_Mesh_Rigged_blue.fbx");
+	std::string blueplayerTexture("Models");
 	MyAnimatedMeshClass characterTwoData;
-	Model characterTwoModel = Importer::loadModel(nanopath, nanotexture);
+	Model characterTwoModel = Importer::loadModel(blueplayerPath, blueplayerTexture);
 	PlayerCharacter characterTwo((CharacterData*)(&characterTwoData), &characterTwoModel);
 	characterTwo.setup();
 	characterTwoModel.scale(0.005f, 0.005f, 0.005f);
@@ -316,21 +312,23 @@ int main(int argc, char *argv[])
 	// swap input directions for player 2 because player 2 faces left
 	characterTwo.swapDirections();
 
+	std::string redplayerPath("Models\\Body_Mesh_Rigged.fbx");
+	std::string redplayerTexture("Models");
 	MyAnimatedMeshClass characterOneData;
-	Model characterOneModel = Importer::loadModel(nanopath, nanotexture);
+	Model characterOneModel = Importer::loadModel(redplayerPath, redplayerTexture);
 	PlayerCharacter characterOne((CharacterData*)(&characterOneData), &characterOneModel);
 	characterOne.setup();
 	characterOneModel.scale(0.005f, 0.005f, 0.005f);
 	characterOneModel.rotateY(90.0f);
 	characterOne.translateCharacter(-1.25f, 0.0f, 0.0f);
 
-	//std::string fieldPath("Models\\field.obj");
-	//std::string fieldTexture("Models");
-	//Model fieldModel = Importer::loadModel(fieldPath, fieldTexture);
-	//fieldModel.setup();
-	//fieldModel.scale(2.5f, 2.5f, 2.5f);
-	//fieldModel.translate(0.0f, 0.0f, -1.0f);
-	//fieldModel.rotateY(180.0f);
+	std::string fieldPath("Models\\field.obj");
+	std::string fieldTexture("Models");
+	Model fieldModel = Importer::loadModel(fieldPath, fieldTexture);
+	fieldModel.setup();
+	fieldModel.scale(2.5f, 2.5f, 2.5f);
+	fieldModel.translate(0.0f, 0.0f, -1.0f);
+	fieldModel.rotateY(180.0f);
 
 	std::string hitPath("Models\\ring\\red_ring.obj");
 	std::string hitTexture("Models\\ring");
@@ -343,24 +341,6 @@ int main(int argc, char *argv[])
 	Model blueRing = Importer::loadModel(blockPath, blockTexture);
 	HitEffect blockEffect(&blueRing);
 	blockEffect.setTime(100);
-
-
-	/*
-	std::string gpath("C:\\Users\\Alex Hu\\Documents\\Model\\Girl\\girl.obj");
-	std::string gtexture("C:\\Users/Alex Hu/Documents/Model/Girl/Texture");
-	Model girlModel = Importer::loadModel(gpath, gtexture);
-	girlModel.setup();
-	girlModel.scale(0.2f, 0.2f, 0.2f);
-	girlModel.translate(5.0f, 0.0f, 0.0f);
-	girlModel.rotateX(-90.0f);
-
-	std::string path("C:\\Users/Alex Hu/Documents/Model/bob/bob_lamp_update_export.md5mesh");
-	std::string texture("C:\\Users/Alex Hu/Documents/Model/bob/");
-	Model bobModel = Importer::loadModel(path, texture);
-	bobModel.setup();
-	bobModel.scale(0.2f, 0.2f, 0.2f);
-	bobModel.rotateX(-90.0f);
-	*/
 
 	// ----------------------------------------------------------------------------------------------
 	// stuff for 3d stuff
@@ -416,7 +396,6 @@ int main(int argc, char *argv[])
 	/*Scene bobScene;
 	bobScene.addModel(&bobModel);
 	//bobScene.addModel(&nanoModel);
-
 	Scene girlScene;
 	girlScene.addModel(&girlModel);
 	//girlScene.addModel(&nanoModel);
@@ -913,7 +892,7 @@ int main(int argc, char *argv[])
 			{
 				characterOne.setEventKnockdown();
 			}
-					
+
 			if ((windowEvent.type == SDL_KEYDOWN) && (windowEvent.key.keysym.sym == SDLK_b))
 			{
 				printf("Status: %s Action: %s posdiff: %f\n", characterOne.getStatusName(), characterOne.getActionName(), characterOne.getX() - characterTwo.getX());
@@ -950,6 +929,16 @@ int main(int argc, char *argv[])
 			characterFlip = true;
 			characterOne.swapDirections();
 			characterTwo.swapDirections();
+		}
+
+		float backwardFloat = -1.0f;
+		if (!canMoveBackwards)
+		{
+			backwardFloat = 0.0f;
+		}
+		if (characterFlip)
+		{
+			backwardFloat = 1.0f;
 		}
 
 
@@ -1016,8 +1005,8 @@ int main(int argc, char *argv[])
 
 
 		glm::vec3 cameraPosition = camera.getPosition();
-	
-		
+
+
 		player1x = characterOne.getX();
 		player2x = characterTwo.getX();
 		distanceBetweenPlayers = player1x - player2x;
@@ -1027,43 +1016,206 @@ int main(int argc, char *argv[])
 		}
 		Status oneStatus = characterOne.getStatus();
 
-		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH1 && distanceBetweenPlayers < .9f)
+		if (!(characterTwo.getIsHit() || characterTwo.getAction() == Action::ACTION_KNOCKDOWN))
 		{
-			characterTwo.setEventHit(30, 60, 20);
-			characterTwo.reduceHealth(1);
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH1 && distanceBetweenPlayers < .9f)
+			{
+				characterTwo.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(10);
+				}
+				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 0 && distanceBetweenPlayers < 1.0f)
+			{
+				characterTwo.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(20);
+				}
+				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 0.8f)
+			{
+				characterTwo.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(20);
+				}
+				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f)
+			{
+				characterTwo.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(20);
+				}
+				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK1 && distanceBetweenPlayers < .9f)
+			{
+				characterTwo.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(15);
+				}
+				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND && distanceBetweenPlayers < 1.3f)
+			{
+				characterTwo.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(25);
+				}
+				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < 1.3f)
+			{
+				characterTwo.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(25);
+				}
+				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 1.0f)
+			{
+				characterTwo.setEventKnockdown();
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterTwo.reduceHealth(20);
+				}
+				characterTwo.setIsHit(true);
+			}
 		}
 
-		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 0 && distanceBetweenPlayers < 1.0f)
+		if (!(characterOne.getIsHit() || characterOne.getAction() == Action::ACTION_KNOCKDOWN))
 		{
-			characterTwo.setEventHit(30, 60, 20);
-			characterTwo.reduceHealth(1);
-		}
-		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 0.8f)
-		{
-			characterTwo.setEventHit(30, 60, 20);
-			characterTwo.reduceHealth(1);
-		}
-		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f)
-		{
-			characterTwo.setEventHit(30, 60, 20);
-			characterTwo.reduceHealth(1);
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH1 && distanceBetweenPlayers < .9f)
+			{
+				characterOne.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(10);
+				}
+				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH2 && characterTwo.getVerticalDirection() == 0 && distanceBetweenPlayers < 1.0f)
+			{
+				characterOne.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(20);
+				}
+				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH2 && characterTwo.getVerticalDirection() == 1 && distanceBetweenPlayers < 0.8f)
+			{
+				characterOne.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(20);
+				}
+				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH2 && characterTwo.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f)
+			{
+				characterOne.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(20);
+				}
+				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK1 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_CROUCH && distanceBetweenPlayers < .9f)
+			{
+				characterOne.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(15);
+				}
+				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND && distanceBetweenPlayers < 1.3f)
+			{
+				characterOne.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(25);
+				}
+				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < 1.3f)
+			{
+				characterOne.setEventHit(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(25);
+				}
+				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_CROUCH && distanceBetweenPlayers < 1.0f)
+			{
+				characterOne.setEventKnockdown();
+				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				{
+					characterOne.reduceHealth(20);
+				}
+				characterOne.setIsHit(true);
+			}
 		}
 
-		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK1 && distanceBetweenPlayers < .9f)
+		if (characterOne.getStatus() == Status::STATUS_NONE)
 		{
-			characterTwo.setEventHit(30, 60, 20);
+			characterTwo.setIsHit(false);
 		}
 
-		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && distanceBetweenPlayers < 1.3f)
+		if (characterTwo.getStatus() == Status::STATUS_NONE)
 		{
-			characterTwo.setEventHit(30, 60, 20);
-		}
-		if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 1.0f)
-		{
-			characterTwo.setEventKnockdown();
+			characterOne.setIsHit(false);
 		}
 
-		
 		// Camera should zoom in when the players get close to each other
 		// camera should zoom less if the players a little further away
 		// camera should zoom out if the players are than a certain distance away
@@ -1123,34 +1275,15 @@ int main(int argc, char *argv[])
 		std::string p2health = std::to_string(characterTwo.getHealth());
 		std::string p1health = std::to_string(characterOne.getHealth());
 
-
-		RenderText(textShaderProgram, p2health, WINDOW_WIDTH-70, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
-		RenderText(textShaderProgram, p1health, 25.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
-		
-			if (runningTime < 2500)
-			{
-				RenderText(textShaderProgram, "Ready!", (WINDOW_WIDTH / 2) - 50.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
-			}
-
-		
-
-		if (characterOne.getHealth() <= 0)
-		{
-			RenderText(textShaderProgram, "Player 2 Wins", 300.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
-		}
-		if (characterTwo.getHealth() <= 0)
-		{
-			RenderText(textShaderProgram, "Player 1 Wins", 300.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
-		}
-		//glDepthMask(GL_FALSE);
-		//skyboxProgram.use();
-		//glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.getViewMatrix()));	// Remove any translation component of the view matrix
-		//skyboxView[3][1] = 0.5f;
-		//glm::mat4 skyboxProj = glm::perspective(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
-		//glUniformMatrix4fv(skyboxViewId, 1, GL_FALSE, glm::value_ptr(skyboxView));
-		//glUniformMatrix4fv(skyboxProjId, 1, GL_FALSE, glm::value_ptr(skyboxProj));
-		//skybox.draw(skyboxSampler);
-		//glDepthMask(GL_TRUE);
+		glDepthMask(GL_FALSE);
+		skyboxProgram.use();
+		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera.getViewMatrix()));	// Remove any translation component of the view matrix
+		skyboxView[3][1] = 0.5f;
+		glm::mat4 skyboxProj = glm::perspective(45.0f, (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+		glUniformMatrix4fv(skyboxViewId, 1, GL_FALSE, glm::value_ptr(skyboxView));
+		glUniformMatrix4fv(skyboxProjId, 1, GL_FALSE, glm::value_ptr(skyboxProj));
+		skybox.draw(skyboxSampler);
+		glDepthMask(GL_TRUE);
 
 		shaderProgram.use();
 		glUniform3f(eyeId, cameraPosition.x, cameraPosition.y, cameraPosition.z);
@@ -1163,44 +1296,64 @@ int main(int argc, char *argv[])
 
 		//unsigned int runningTime = SDL_GetTicks() - startTime;
 		//timeInMs = 16.66667f;
-			std::vector<glm::mat4> boneTransforms = characterTwo.getBoneTransforms(characterTwoData.getAnimationTime((float)timeInMs));
+		std::vector<glm::mat4> boneTransforms = characterTwo.getBoneTransforms(characterTwoData.getAnimationTime((float)timeInMs));
 
-			for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		for (unsigned int i = 0; i < boneTransforms.size(); ++i)
+		{
+			if (i < 100)
 			{
-				if (i < 100)
-				{
-					setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
-				}
+				setBoneTransforms(shaderProgramId, i, boneTransforms[i]);
 			}
+		}
 
-			characterTwo.draw(sampler, uniModel);
+		characterTwo.draw(sampler, uniModel);
 
-			std::vector<glm::mat4> boneTransforms2 = characterOne.getBoneTransforms(characterOneData.getAnimationTime((float)timeInMs));
+		std::vector<glm::mat4> boneTransforms2 = characterOne.getBoneTransforms(characterOneData.getAnimationTime((float)timeInMs));
 
-			for (unsigned int i = 0; i < boneTransforms2.size(); ++i)
+		for (unsigned int i = 0; i < boneTransforms2.size(); ++i)
+		{
+			if (i < 100)
 			{
-				if (i < 100)
-				{
-					setBoneTransforms(shaderProgramId, i, boneTransforms2[i]);
-				}
+				setBoneTransforms(shaderProgramId, i, boneTransforms2[i]);
 			}
+		}
 
-			characterOne.draw(sampler, uniModel);
+		characterOne.draw(sampler, uniModel);
 
-			glUniform3f(lightColorId, lightColorField.x, lightColorField.y, lightColorField.z);
-			glUniform1f(shininessId, shinyField);
+		glUniform3f(lightColorId, lightColorField.x, lightColorField.y, lightColorField.z);
+		glUniform1f(shininessId, shinyField);
 
-			//std::vector<glm::mat4> boneTransformsField = fieldModel.getBoneTransforms(0, 0);
+		std::vector<glm::mat4> boneTransformsField = fieldModel.getBoneTransforms(0, 0);
 
-			//for (unsigned int i = 0; i < boneTransformsField.size(); ++i)
-			//{
-			//	if (i < 100)
-			//	{
-			//		setBoneTransforms(shaderProgramId, i, boneTransformsField[i]);
-			//	}
-			//}
+		for (unsigned int i = 0; i < boneTransformsField.size(); ++i)
+		{
+			if (i < 100)
+			{
+				setBoneTransforms(shaderProgramId, i, boneTransformsField[i]);
+			}
+		}
 
-			//fieldModel.draw(sampler, uniModel, glm::mat4(1.0f));
+		fieldModel.draw(sampler, uniModel, glm::mat4(1.0f));
+
+		RenderText(textShaderProgram, p2health, WINDOW_WIDTH - 70, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
+		RenderText(textShaderProgram, p1health, 25.0f, 25.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f), vao, vbo);
+
+		if (runningTime < 2500)
+		{
+			RenderText(textShaderProgram, "Ready!", (WINDOW_WIDTH / 2) - 50.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
+		}
+
+
+
+		if (characterOne.getHealth() <= 0)
+		{
+			RenderText(textShaderProgram, "Player 2 Wins", 300.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
+		}
+		if (characterTwo.getHealth() <= 0)
+		{
+			RenderText(textShaderProgram, "Player 1 Wins", 300.0f, 300.0f, 1.0f, glm::vec3(0.9, 0.1f, 0.1f), vao, vbo);
+		}
+
 		shaderProgram.use();
 
 		unsigned int currTime = SDL_GetTicks();
@@ -1244,12 +1397,10 @@ int main(int argc, char *argv[])
 
 	sampleRect.cleanup();
 
-	//bobModel.clearGLBuffers();
-	//girlModel.clearGLBuffers();
-	//nanoModel.clearGLBuffers();
+	fieldModel.clearGLBuffers();
 	characterTwo.cleanup();
 	characterOne.cleanup();
-	//skybox.cleanup();
+	skybox.cleanup();
 	redRing.clearGLBuffers();
 	blueRing.clearGLBuffers();
 
