@@ -1010,22 +1010,41 @@ int main(int argc, char *argv[])
 		player1x = characterOne.getX();
 		player2x = characterTwo.getX();
 		distanceBetweenPlayers = player1x - player2x;
+		float player1y = characterOne.getY();
+		float player2y = characterTwo.getY();
+		float jumpBetweenPlayers = player1y - player2y;
 		if (distanceBetweenPlayers < 0)
 		{
 			distanceBetweenPlayers *= -1.0f;
+		}
+		if (jumpBetweenPlayers < 0)
+		{
+			jumpBetweenPlayers *= -1.0f;
 		}
 		Status oneStatus = characterOne.getStatus();
 
 		if (!(characterTwo.getIsHit() || characterTwo.getAction() == Action::ACTION_KNOCKDOWN))
 		{
-			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH1 && distanceBetweenPlayers < .9f)
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH1 && characterOne.getVerticalDirection() != VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < .9f)
 			{
 				characterTwo.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
 					characterTwo.reduceHealth(10);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH1 && characterOne.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < .9f && jumpBetweenPlayers < 1.0f)
+			{
+				characterTwo.setEventHitHigh(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_HIT)
+				{
+					characterTwo.reduceHealth(10);
+					characterTwo.setIsHit(true);
+				}
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
@@ -1033,45 +1052,57 @@ int main(int argc, char *argv[])
 			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 0 && distanceBetweenPlayers < 1.0f)
 			{
 				characterTwo.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
 					characterTwo.reduceHealth(20);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 0.8f)
 			{
 				characterTwo.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
 					characterTwo.reduceHealth(20);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
-			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f)
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_PUNCH2 && characterOne.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f  && jumpBetweenPlayers < 1.4f)
 			{
-				characterTwo.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				characterTwo.setEventHitHigh(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
 					characterTwo.reduceHealth(20);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 
-			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK1 && distanceBetweenPlayers < .9f)
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK1 && characterOne.getVerticalDirection() != 2 && distanceBetweenPlayers < .9f)
 			{
 				characterTwo.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
 					characterTwo.reduceHealth(15);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK1  && characterOne.getVerticalDirection() == 2 && distanceBetweenPlayers < .9f  && jumpBetweenPlayers < 1.0f)
+			{
+				characterTwo.setEventHitHigh(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_HIT)
+				{
+					characterTwo.reduceHealth(15);
+					characterTwo.setIsHit(true);
+				}
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
@@ -1079,48 +1110,61 @@ int main(int argc, char *argv[])
 			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND && distanceBetweenPlayers < 1.3f)
 			{
 				characterTwo.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
 					characterTwo.reduceHealth(25);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 
-			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < 1.3f)
+			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < 1.3f  && jumpBetweenPlayers < 1.5f)
 			{
-				characterTwo.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				characterTwo.setEventHitHigh(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
 					characterTwo.reduceHealth(25);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 
 			if (characterOne.getStatus() == Status::STATUS_ACTIVE && characterOne.getAction() == Action::ACTION_KICK2 && characterOne.getVerticalDirection() == 1 && distanceBetweenPlayers < 1.0f)
 			{
-				characterTwo.setEventKnockdown();
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				characterTwo.setEventHitLow(30, 60, 20);
+				if (characterTwo.getAction() == Action::ACTION_HIT)
 				{
+					characterTwo.setEventKnockdown();
 					characterTwo.reduceHealth(20);
+					characterTwo.setIsHit(true);
 				}
-				characterTwo.setIsHit(true);
 			}
 		}
 
 		if (!(characterOne.getIsHit() || characterOne.getAction() == Action::ACTION_KNOCKDOWN))
 		{
-			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH1 && distanceBetweenPlayers < .9f)
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH1 && characterTwo.getVerticalDirection() != VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < .9f)
 			{
 				characterOne.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
 					characterOne.reduceHealth(10);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH1 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < .9f && jumpBetweenPlayers < 1.0f)
+			{
+				characterOne.setEventHitHigh(30, 60, 20);
+				if (characterOne.getAction() == Action::ACTION_HIT)
+				{
+					characterOne.reduceHealth(10);
+					characterOne.setIsHit(true);
+				}
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
@@ -1128,45 +1172,57 @@ int main(int argc, char *argv[])
 			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH2 && characterTwo.getVerticalDirection() == 0 && distanceBetweenPlayers < 1.0f)
 			{
 				characterOne.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
 					characterOne.reduceHealth(20);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH2 && characterTwo.getVerticalDirection() == 1 && distanceBetweenPlayers < 0.8f)
 			{
 				characterOne.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
 					characterOne.reduceHealth(20);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
-			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH2 && characterTwo.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f)
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_PUNCH2 && characterTwo.getVerticalDirection() == 2 && distanceBetweenPlayers < 0.8f  && jumpBetweenPlayers < 1.4f)
 			{
-				characterOne.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				characterOne.setEventHitHigh(30, 60, 20);
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
 					characterOne.reduceHealth(20);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 
-			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK1 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_CROUCH && distanceBetweenPlayers < .9f)
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK1 && characterTwo.getVerticalDirection() != 2 && distanceBetweenPlayers < .9f)
 			{
 				characterOne.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
 					characterOne.reduceHealth(15);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
+				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
+				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
+			}
+
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK1  && characterTwo.getVerticalDirection() == 2 && distanceBetweenPlayers < .9f  && jumpBetweenPlayers < 1.0f)
+			{
+				characterOne.setEventHitHigh(30, 60, 20);
+				if (characterOne.getAction() == Action::ACTION_HIT)
+				{
+					characterOne.reduceHealth(15);
+					characterOne.setIsHit(true);
+				}
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
@@ -1174,44 +1230,45 @@ int main(int argc, char *argv[])
 			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_STAND && distanceBetweenPlayers < 1.3f)
 			{
 				characterOne.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
 					characterOne.reduceHealth(25);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 
-			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < 1.3f)
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_JUMP && distanceBetweenPlayers < 1.3f  && jumpBetweenPlayers < 1.5f)
 			{
-				characterOne.setEventHit(30, 60, 20);
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				characterOne.setEventHitHigh(30, 60, 20);
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
 					characterOne.reduceHealth(25);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
 				characterTwo.translateCharacter(-backwardFloat * 0.1f, 0.0f, 0.0f);
 				characterOne.translateCharacter(backwardFloat * 0.1f, 0.0f, 0.0f);
 			}
 
-			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == VerticalDirection::VDIRECTION_CROUCH && distanceBetweenPlayers < 1.0f)
+			if (characterTwo.getStatus() == Status::STATUS_ACTIVE && characterTwo.getAction() == Action::ACTION_KICK2 && characterTwo.getVerticalDirection() == 1 && distanceBetweenPlayers < 1.0f)
 			{
-				characterOne.setEventKnockdown();
-				if (characterTwo.getAction() == Action::ACTION_BLOCK)
+				characterOne.setEventHitLow(30, 60, 20);
+				if (characterOne.getAction() == Action::ACTION_HIT)
 				{
+					characterOne.setEventKnockdown();
 					characterOne.reduceHealth(20);
+					characterOne.setIsHit(true);
 				}
-				characterOne.setIsHit(true);
 			}
 		}
 
-		if (characterOne.getStatus() == Status::STATUS_NONE)
+		if (characterOne.getStatus() == Status::STATUS_RECOVERY || characterOne.getStatus() == Status::STATUS_NONE)
 		{
 			characterTwo.setIsHit(false);
 		}
 
-		if (characterTwo.getStatus() == Status::STATUS_NONE)
+		if (characterTwo.getStatus() == Status::STATUS_RECOVERY || characterTwo.getStatus() == Status::STATUS_NONE)
 		{
 			characterOne.setIsHit(false);
 		}
